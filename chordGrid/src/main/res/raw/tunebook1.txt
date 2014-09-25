@@ -1,0 +1,54 @@
+X:1
+T:Little Diamond
+R:Polka
+K:D
+|: D | D | D | A | D | D | A | D :|
+|: D | B- | D | A | D | B- | A | D :|
+
+X:2
+T:Murroe Polka
+R:Polka
+K:G
+|: G | G  | D  | D  | G | G  | D  | G  :|
+|: G | G | D | D | G | G | D | D :|
+
+X:3
+T:Maids of Ardath
+R:Polka
+K:D
+|: D | D | A | D   | D | D | A | D   :|
+|: A | A | E | E A | A | A | E | E A :|
+
+X:4
+T:Tarbolton
+R:Reel
+K:Edor
+|: E- | E- | D | G D | E- | D E- | G D | E- :|
+|: E- | E- | D | G D | E- D | E- | G D | E- :|
+
+X:5
+T:Kalyana
+R:Jig
+K:Bm
+|: D9 | D9   | D9   | D9   | D9 | D9 | D9 | D9 :|
+|: D9 | D9 D | D  A | A  D | A  | D  | G  | G  :|
+
+X:6
+T:Up in the Garret
+R:Slip Jig
+K:Ador
+|: Am | Am       | Am | Am :|
+|: Em | Em F#m G | Em | G  :|
+
+X:7
+T:Leckan Mor
+R:Jig
+K:Bm
+A) |: Bm | Bm | A | A | Em | Em | F#m   | F#m   :|
+B) | Bm  | Bm | A | A | Em | Em | F#m   | F#m    | 
+   | Bm  | Bm | A | A | Em | Em | G   A | D   A  ||
+   
+SET:Kalyana
+5 6 7
+
+   

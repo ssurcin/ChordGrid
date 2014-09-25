@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Settings">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:summary="@string/settings_paged_tuneset_summary"
+            android:switchTextOff="@string/settings_pages_tuneset_off"
+            android:switchTextOn="@string/settings_paged_tuneset_on"
+            android:title="@string/settings_paged_tuneset"
+            android:key="pagedTunesets" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

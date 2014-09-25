@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="abc4j_v0.5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/chordGrid/libs/abc4j_v0.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

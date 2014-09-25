@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.chordgrid.MainActivity">
+
+    <item
+        android:id="@+id/action_add_set"
+        android:icon="@drawable/ic_action_add_set"
+        android:title="@string/add_set"
+        android:showAsAction="ifRoom"></item>
+    <item
+        android:id="@+id/action_merge"
+        android:icon="@drawable/ic_action_merge"
+        android:title="@string/merge"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_discard"
+        android:icon="@drawable/ic_action_discard"
+        android:title="@string/discard"
+        android:showAsAction="ifRoom"></item>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="900"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+</menu>

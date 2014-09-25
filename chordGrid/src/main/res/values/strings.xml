@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ChordGrid</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_display_tune_set">DisplayTuneSetActivity</string>
+    <string name="action_download">Download</string>
+    <string name="select_file">Select a file:</string>
+    <string name="title_activity_select_file">Select File</string>
+    <string name="error_drive_read">Cannot read file contents from Google Drive!</string>
+    <string name="action_tunes">Tunes</string>
+    <string name="action_sets">Sets</string>
+    <string name="tunes">Tunes</string>
+    <string name="sets">Sets</string>
+    <string name="title_activity_display_tune_grid">DisplayTuneGridActivity</string>
+    <string name="add_set">Add set</string>
+    <string name="create_set">Create Set</string>
+    <string name="settings_paged_tuneset">Paged tune sets</string>
+    <string name="settings_paged_tuneset_on">Paged</string>
+    <string name="settings_pages_tuneset_off">Continuous</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_paged_tuneset_summary">Tune sets can be displayed paged (1 tune per page) or continuously on a single page.</string>
+    <string name="discard">Discard</string>
+    <string name="msg_confirm_discard">Are you sure you want to discard these %d items?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="select_tunes">Select Tunes</string>
+    <string name="nothing">Nothing</string>
+    <string name="merge">Merge</string>
+
+</resources>

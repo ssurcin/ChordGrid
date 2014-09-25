@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grouprow"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_gravity="center_vertical"
+    android:layout_marginLeft="8dp"
+    android:layout_marginBottom="2dp"
+    android:drawableRight="@drawable/tuneset_icon"
+    android:gravity="center_vertical|left"
+    android:paddingLeft="40dp"
+    android:paddingRight="8dp"
+    android:paddingTop="8dp"
+    android:text="@string/hello_world"
+    android:textSize="14sp"
+    android:textStyle="bold">
+
+</CheckedTextView>

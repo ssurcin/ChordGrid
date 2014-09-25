@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-76b14aa17b81bbc163cd80a446a1b7b586578390.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.google.android.gms\play-services\5.2.08\classes.jar"
+        jumboMode="false" revision="20.0.0" sha1="1ed7a7a05185651f9af41ad93711cb96b66f331c" />
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-9010858c9c7f3ba7dac463a3e033cb118915d446.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\ChordGrid\library\unspecified\classes.jar"
+        jumboMode="false" revision="20.0.0" sha1="80fb2bd8b759ec2fec9d857ec3f77f498834ee06" />
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-96cfc7bc5d03bc3acbb5eda27bb47c3bd16b8128.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.android.support\appcompat-v7\19.1.0\classes.jar"
+        jumboMode="false" revision="19.1.0" sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28" />
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\abc4j_v0.5-63cb9512f656ae51525ea0af44eb285cb94d12ca.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\libs\abc4j_v0.5.jar"
+        jumboMode="false" revision="20.0.0" sha1="477581e192f835cb363e010daa1a216007bc4396" />
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\support-v4-19.1.0-e311e493b238b75da4095bd5ee7b69d76d73dc42.jar"
+        jar="C:\Program Files (x86)\Android\android-studio\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
+        jumboMode="false" revision="19.1.0" sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67" />
+
+</pre-dex-items>

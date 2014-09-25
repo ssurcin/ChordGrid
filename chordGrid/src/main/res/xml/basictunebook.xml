@@ -1,0 +1,96 @@
+<TuneBook>
+    <Tunes>
+        <Tune
+            id="drumshambo_jig"
+            name="Drumshambo Jig"
+            rythm="Jig"
+            key="Em">
+            <Part label="A">|: Em | Em D | C | D | Em | Em D | C | D Em :|</Part>
+            <Part label="B">|: Em D | Em | Em D | Em | Em D | Em D | C | D Em :|</Part>
+        </Tune>
+        <Tune
+            id="flying_wheelchair"
+            name="Flying Wheelchair, The"
+            rythm="Jig"
+            key="G">
+            <Part label="A">|: G | Am | C | D | G | Am | C | D :|</Part>
+            <Part label="B">|: G | D F# | Em C | D | G | C | G | Am D :|</Part>
+        </Tune>
+        <Tune
+            id="drummond_castle"
+            name="Drummond Castle"
+            rythm="Jig"
+            key="Ador">
+            <Part label="A">|: Am | Am G | C | G | Am | Am G | C G | Em Am :|</Part>
+            <Part label="B">|: C | G | Am | G | C | G F | C G | Em Am :|</Part>
+        </Tune>
+        <Tune
+            id="humours_of_glendart"
+            name="Humours of Glendart, The"
+            rythm="Jig"
+            key="D">
+            <Part label="A">|: D | D | D | Em A | D | D | G A | D :|</Part>
+            <Part label="B">|: Bm | A | Bm | Em A | D | D | G A | D :|</Part>
+        </Tune>
+        <Tune
+            id="old_geese_in_the_bog"
+            name="Old Geese in the Bog, The"
+            rythm="Jig"
+            key="Am">
+            <Part label="A">|: C | C | C | Am | C | C | F Em | Am :|</Part>
+            <Part label="B">|: C | Am | C | Am | C | Am | F Em | Am :|</Part>
+        </Tune>
+        <Tune
+            id="cliffs_of_moher"
+            name="Cliffs of Moher, The"
+            rythm="Jig"
+            key="D">
+            <Part label="A">|: Am | Am G | Am | Em | Am | Am G | Am | Em Am :|</Part>
+            <Part label="B">
+                | Am | Am | G | G | Am | Am | G | Em Am |
+                | Am | Am | G | G Em | F | F | G | Em Am |
+            </Part>
+        </Tune>
+        <Tune
+            id="maple_leaf"
+            name="Maple Leaf"
+            rythm="Reel"
+            key="Em">
+            <Part label="A">|: Em | C | Am | Bm | Em | C | Am | A Bm :|</Part>
+            <Part label="B">|: Em | C | Am | Bm | Em | C | Am | A Bm :|</Part>
+        </Tune>
+        <Tune
+            id="man_of_aran"
+            name="Man of Aran"
+            rythm="Reel"
+            key="Bm">
+            <Part label="A">|: Bm | A | Bm | Bm A | Bm | A | Bm | A Bm :|</Part>
+            <Part label="B">|: D | A | D | A Bm | D | A | Bm | A Bm :|</Part>
+        </Tune>
+        <Tune
+            id="noisy_curlew"
+            name="Noisy Curlew"
+            rythm="Reel"
+            key="D">
+            <Part label="A">|: D G | D A | D | G A | D G | D A | D | A D :|</Part>
+            <Part label="B">|: D G | D A | D G | A D | D G | D A | D G | A D :|</Part>
+        </Tune>
+    </Tunes>
+    <TuneSets>
+        <TuneSet>
+            <TuneRef id="drumshambo_jig" />
+            <TuneRef id="flying_wheelchair" />
+            <TuneRef id="drummond_castle" />
+        </TuneSet>
+        <TuneSet>
+            <TuneRef id="humours_of_glendart" />
+            <TuneRef id="old_geese_in_the_bog" />
+            <TuneRef id="cliffs_of_moher" />
+        </TuneSet>
+        <TuneSet>
+            <TuneRef id="maple_leaf" />
+            <TuneRef id="man_of_aran" />
+            <TuneRef id="noisy_curlew" />
+        </TuneSet>
+    </TuneSets>
+</TuneBook>
