@@ -35,20 +35,20 @@ public class DisplayTuneSetActivity extends ActionBarActivity {
     /**
      * The displayed tune set.
      */
-    private TuneSet tuneSet;
+    private TuneSet mTuneset;
 
     /**
      * Is the display paged (or continuous)?
      */
-    private boolean pagedDisplay;
+    private boolean mPagedDisplay;
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally
      * to access previous and next wizard steps.
      */
-    private ViewPager viewPager;
+    private ViewPager mViewPager;
 
-    private TuneSlidePagerAdapter tuneSlidePagerAdapter;
+    private TuneSlidePagerAdapter mTuneSlidePagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,30 +58,30 @@ public class DisplayTuneSetActivity extends ActionBarActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            tuneSet = (TuneSet) extras.getParcelable(TuneSet.class
+            mTuneset = (TuneSet) extras.getParcelable(TuneSet.class
                     .getSimpleName());
-            setTitle(tuneSet.toString());
+            setTitle(mTuneset.toString());
         }
 
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        pagedDisplay = sharedPreferences.getBoolean(SETTING_PAGED_TUNESETS,
+        mPagedDisplay = sharedPreferences.getBoolean(SETTING_PAGED_TUNESETS,
                 false);
-        if (pagedDisplay) {
+        if (mPagedDisplay) {
             Log.d(TAG, "Tuneset display is paged");
             setContentView(R.layout.activity_display_tune_set);
 
-            viewPager = (ViewPager) findViewById(R.id.pager);
-            tuneSlidePagerAdapter = new TuneSlidePagerAdapter(
-                    getSupportFragmentManager(), tuneSet);
-            viewPager.setAdapter(tuneSlidePagerAdapter);
+            mViewPager = (ViewPager) findViewById(R.id.pager);
+            mTuneSlidePagerAdapter = new TuneSlidePagerAdapter(
+                    getSupportFragmentManager(), mTuneset);
+            mViewPager.setAdapter(mTuneSlidePagerAdapter);
         } else {
             Log.d(TAG, "Tuneset display is continuous");
             setContentView(R.layout.activity_display_tuneset_continous);
 
             final LinearLayout container = (LinearLayout) findViewById(R.id.container);
-            for (int i = 0; i < tuneSet.size(); i++) {
-                Tune tune = tuneSet.get(i);
+            for (int i = 0; i < mTuneset.size(); i++) {
+                Tune tune = mTuneset.get(i);
 
                 TextView text = new TextView(getApplicationContext());
                 text.setLayoutParams(new LayoutParams(
@@ -101,20 +101,6 @@ public class DisplayTuneSetActivity extends ActionBarActivity {
                 grid.setTune(tune);
                 container.addView(grid);
             }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (viewPager.getCurrentItem() == 0) {
-            // If the user is currently looking at the first step, allow the
-            // system to handle the
-            // Back button. This calls finish() on this activity and pops the
-            // back stack.
-            super.onBackPressed();
-        } else {
-            // Otherwise, select the previous step.
-            viewPager.setCurrentItem(viewPager.getCurrentItem() - 1);
         }
     }
 

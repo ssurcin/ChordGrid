@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -236,13 +237,21 @@ public class MainActivity extends FragmentActivity implements TabListener {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_add_set) {
+            Log.d(TAG, "Action ADD SET");
             onAddSet();
         } else if (id == R.id.action_settings) {
+            Log.d(TAG, "Action SETTINGS");
             Intent intent = new Intent(getApplicationContext(),
                     UserSettingsActivity.class);
             startActivity(intent);
         } else if (id == R.id.action_discard) {
+            Log.d(TAG, "Action DISCARD");
             onDiscard();
+        } else if (id == R.id.action_merge) {
+            Log.d(TAG, "Action MERGE");
+            onMerge();
+        } else {
+            Log.d(TAG, String.format("Action item not covered %X", id));
         }
         return super.onOptionsItemSelected(item);
     }
@@ -472,8 +481,15 @@ public class MainActivity extends FragmentActivity implements TabListener {
             return;
         }
 
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle(R.string.merging_tunebook);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.show();
+
         // Do merge with current tunebook.
-        myTunebook.merge(tunebook);
+        myTunebook.merge(tunebook, progressDialog);
+
+        progressDialog.dismiss();
 
         // Save result
         saveTuneBook(myTunebook, tunebookFileName);
