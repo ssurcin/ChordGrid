@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ChordGrid.iml" filepath="$PROJECT_DIR$/ChordGrid.iml" />
       <module fileurl="file://$PROJECT_DIR$/chordGrid/chordGrid.iml" filepath="$PROJECT_DIR$/chordGrid/chordGrid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dslvLibrary/dslvLibrary.iml" filepath="$PROJECT_DIR$/dslvLibrary/dslvLibrary.iml" />
     </modules>
   </component>
 </project>

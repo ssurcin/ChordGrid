@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.chordgrid.model.TuneBook;
+import com.chordgrid.model.TuneSet;
 import com.chordgrid.tunes.ExpandableTunesListFragment;
 import com.chordgrid.tunesets.ExpandableTuneSetsListFragment;
 
@@ -33,6 +34,10 @@ public class TunesAndSetsTabPagerAdapter extends FragmentPagerAdapter {
 
     public boolean wasFragmentCreated() {
         return createdFragment;
+    }
+
+    public void updateTuneSet(TuneSet changedTuneSet) {
+        setsListFragment.updateTuneSet(changedTuneSet);
     }
 
     @Override

@@ -19,62 +19,62 @@ import java.util.regex.Pattern;
 public class TunePart implements Parcelable {
 
     /**
-     * Tag for LogCat console debugging.
-     */
-    private static final String TAG = "com.chordgrid.model.TunePart";
-
-    private Tune tune;
-    private String label;
-    private String chordGrid;
-    private List<Line> lines = new ArrayList<Line>();
-
-    public TunePart() {
-    }
-
-    public Tune getTune() {
-        return tune;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public String getChordGrid() {
-        return chordGrid;
-    }
-
-    /**
-     * Getter for the part lines.
-     */
-    public List<Line> getLines() {
-        return lines;
-    }
-
-    /**************************************************************************
-     * XML parsing
-     *************************************************************************/
-
-    /**
      * The XML tag expected for a tune part.
      */
     public static final String XML_TAG = "Part";
-
     /**
      * The XML tag expected for a line's text.
      */
     public static final String XML_TEXT_TAG = "Text";
-
     /**
      * The name of the label attribute.
      */
     public static final String XML_ATTR_LABEL = "label";
+    public static final Parcelable.Creator<TunePart> CREATOR = new Creator<TunePart>() {
+
+        @Override
+        public TunePart[] newArray(int size) {
+            return new TunePart[size];
+        }
+
+        @Override
+        public TunePart createFromParcel(Parcel source) {
+            return new TunePart(source);
+        }
+    };
+    /**
+     * Tag for LogCat console debugging.
+     */
+    private static final String TAG = "TunePart";
+    private static final Pattern labelPattern = Pattern
+            .compile("([A-Za-z0-9]+)\\)");
+    /**
+     * ***********************************************************************
+     * Text parsing
+     * ***********************************************************************
+     */
+
+    private static Character currentLabel = 'A';
+    private final List<Line> mLines = new ArrayList<Line>();
+    private Tune mTune;
+    private String mLabel;
+    private String mChordGrid;
+
+    /**
+     * ***********************************************************************
+     * XML parsing
+     * ***********************************************************************
+     */
+
+    public TunePart() {
+    }
 
     /**
      * Reads a new instance of TunePart from an XML parser.
      */
     public TunePart(Tune tune, XmlPullParser parser)
             throws XmlPullParserException, IOException {
-        this.tune = tune;
+        this.mTune = tune;
         Log.d(MainActivity.TAG, "parse TunePart tag " + parser.getName());
         parser.require(XmlPullParser.START_TAG, "", XML_TAG);
 
@@ -91,12 +91,80 @@ public class TunePart implements Parcelable {
             if (XML_TEXT_TAG.equalsIgnoreCase(name)) {
                 sb.append(parseTextTag(parser));
             } else if (Line.XML_TAG.equalsIgnoreCase(name)) {
-                lines.add(new Line(parser));
+                mLines.add(new Line(parser));
             }
         }
-        chordGrid = sb.toString();
+        mChordGrid = sb.toString();
 
         parser.require(XmlPullParser.END_TAG, "", XML_TAG);
+    }
+
+    /**
+     * Builds a new instance of Tune from a text representation.
+     */
+    public TunePart(Tune tune, List<String> textLines) {
+        this.mTune = tune;
+
+        mLabel = parseLabel(textLines.get(0));
+        if (mLabel == null)
+            mLabel = nextLabel();
+
+        Log.d(TAG, String.format("Reading part %s with %d lines", getLabel(),
+                textLines.size()));
+        for (String textLine : textLines) {
+            mLines.add(new Line(textLine));
+        }
+        Log.d(TAG, String.format("Added %d lines to this part", mLines.size()));
+    }
+
+    /**
+     * ***********************************************************************
+     * Parcelable implementation
+     * ***********************************************************************
+     */
+
+    public TunePart(Parcel in) {
+        readFromParcel(in);
+    }
+
+    public static String nextLabel() {
+        String label = new StringBuilder().append(currentLabel).toString();
+        currentLabel++;
+        return label;
+    }
+
+    public static void resetNextLabel() {
+        currentLabel = 'A';
+    }
+
+    public static String parseLabel(String firstLine) {
+        Matcher m = labelPattern.matcher(firstLine);
+        if (m.find())
+            return m.group(1);
+        return null;
+    }
+
+    public Tune getTune() {
+        return mTune;
+    }
+
+    public void setTune(Tune tune) {
+        mTune = tune;
+    }
+
+    public String getLabel() {
+        return mLabel;
+    }
+
+    public String getChordGrid() {
+        return mChordGrid;
+    }
+
+    /**
+     * Getter for the part lines.
+     */
+    public List<Line> getLines() {
+        return mLines;
     }
 
     /**
@@ -110,7 +178,7 @@ public class TunePart implements Parcelable {
                 attrValue));
         if (XML_ATTR_LABEL.equalsIgnoreCase(attrName)) {
             Log.d(TAG, "parse TunePart label " + attrValue);
-            label = attrValue;
+            mLabel = attrValue;
         }
     }
 
@@ -146,76 +214,20 @@ public class TunePart implements Parcelable {
             throws IllegalArgumentException, IllegalStateException, IOException {
         xmlSerializer.startTag("", XML_TAG);
         xmlSerializer.attribute("", XML_ATTR_LABEL, getLabel());
-        for (Line line : lines) {
+        for (Line line : mLines) {
             line.xmlSerialize(xmlSerializer);
         }
         xmlSerializer.endTag("", XML_TAG);
-    }
-
-    /**
-     * ***********************************************************************
-     * Text parsing
-     * ***********************************************************************
-     */
-
-    private static Character currentLabel = 'A';
-
-    public static String nextLabel() {
-        String label = new StringBuilder().append(currentLabel).toString();
-        currentLabel++;
-        return label;
-    }
-
-    public static void resetNextLabel() {
-        currentLabel = 'A';
-    }
-
-    /**
-     * Builds a new instance of Tune from a text representation.
-     */
-    public TunePart(Tune tune, List<String> textLines) {
-        this.tune = tune;
-
-        label = parseLabel(textLines.get(0));
-        if (label == null)
-            label = nextLabel();
-
-        Log.d(TAG, String.format("Reading part %s with %d lines", getLabel(),
-                textLines.size()));
-        for (String textLine : textLines) {
-            lines.add(new Line(textLine));
-        }
-        Log.d(TAG, String.format("Added %d lines to this part", lines.size()));
-    }
-
-    private static final Pattern labelPattern = Pattern
-            .compile("([A-Za-z0-9]+)\\)");
-
-    public static String parseLabel(String firstLine) {
-        Matcher m = labelPattern.matcher(firstLine);
-        if (m.find())
-            return m.group(1);
-        return null;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getLabel()).append(") ");
-        for (Line line : lines) {
+        for (Line line : mLines) {
             sb.append(line.toString()).append("\n");
         }
         return sb.toString();
-    }
-
-    /**
-     * ***********************************************************************
-     * Parcelable implementation
-     * ***********************************************************************
-     */
-
-    public TunePart(Parcel in) {
-        readFromParcel(in);
     }
 
     @Override
@@ -225,37 +237,28 @@ public class TunePart implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{tune.getId(), label, chordGrid});
-        dest.writeTypedList(lines);
+        try {
+            dest.writeStringArray(new String[]{mTune.getId(), mLabel, mChordGrid});
+            dest.writeTypedList(mLines);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void readFromParcel(Parcel in) {
         String[] data = new String[3];
         in.readStringArray(data);
-        label = data[1];
-        chordGrid = data[2];
-        in.readTypedList(lines, Line.CREATOR);
+        mLabel = data[1];
+        mChordGrid = data[2];
+        in.readTypedList(mLines, Line.CREATOR);
     }
-
-    public static final Parcelable.Creator<TunePart> CREATOR = new Creator<TunePart>() {
-
-        @Override
-        public TunePart[] newArray(int size) {
-            return new TunePart[size];
-        }
-
-        @Override
-        public TunePart createFromParcel(Parcel source) {
-            return new TunePart(source);
-        }
-    };
 
     /**
      * Gets the greatest number of measures per line (i.e. the largest line).
      */
     public int getMaxMeasuresPerLine() {
         int max = 0;
-        for (Line line : lines) {
+        for (Line line : mLines) {
             if (line.countMeasures() > max)
                 max = line.countMeasures();
         }

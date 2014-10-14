@@ -3,7 +3,7 @@
         <Tune
             id="drumshambo_jig"
             name="Drumshambo Jig"
-            rythm="Jig"
+            rhythm="Jig"
             key="Em">
             <Part label="A">|: Em | Em D | C | D | Em | Em D | C | D Em :|</Part>
             <Part label="B">|: Em D | Em | Em D | Em | Em D | Em D | C | D Em :|</Part>
@@ -11,7 +11,7 @@
         <Tune
             id="flying_wheelchair"
             name="Flying Wheelchair, The"
-            rythm="Jig"
+            rhythm="Jig"
             key="G">
             <Part label="A">|: G | Am | C | D | G | Am | C | D :|</Part>
             <Part label="B">|: G | D F# | Em C | D | G | C | G | Am D :|</Part>
@@ -19,7 +19,7 @@
         <Tune
             id="drummond_castle"
             name="Drummond Castle"
-            rythm="Jig"
+            rhythm="Jig"
             key="Ador">
             <Part label="A">|: Am | Am G | C | G | Am | Am G | C G | Em Am :|</Part>
             <Part label="B">|: C | G | Am | G | C | G F | C G | Em Am :|</Part>
@@ -27,7 +27,7 @@
         <Tune
             id="humours_of_glendart"
             name="Humours of Glendart, The"
-            rythm="Jig"
+            rhythm="Jig"
             key="D">
             <Part label="A">|: D | D | D | Em A | D | D | G A | D :|</Part>
             <Part label="B">|: Bm | A | Bm | Em A | D | D | G A | D :|</Part>
@@ -35,7 +35,7 @@
         <Tune
             id="old_geese_in_the_bog"
             name="Old Geese in the Bog, The"
-            rythm="Jig"
+            rhythm="Jig"
             key="Am">
             <Part label="A">|: C | C | C | Am | C | C | F Em | Am :|</Part>
             <Part label="B">|: C | Am | C | Am | C | Am | F Em | Am :|</Part>
@@ -43,7 +43,7 @@
         <Tune
             id="cliffs_of_moher"
             name="Cliffs of Moher, The"
-            rythm="Jig"
+            rhythm="Jig"
             key="D">
             <Part label="A">|: Am | Am G | Am | Em | Am | Am G | Am | Em Am :|</Part>
             <Part label="B">
@@ -54,7 +54,7 @@
         <Tune
             id="maple_leaf"
             name="Maple Leaf"
-            rythm="Reel"
+            rhythm="Reel"
             key="Em">
             <Part label="A">|: Em | C | Am | Bm | Em | C | Am | A Bm :|</Part>
             <Part label="B">|: Em | C | Am | Bm | Em | C | Am | A Bm :|</Part>
@@ -62,7 +62,7 @@
         <Tune
             id="man_of_aran"
             name="Man of Aran"
-            rythm="Reel"
+            rhythm="Reel"
             key="Bm">
             <Part label="A">|: Bm | A | Bm | Bm A | Bm | A | Bm | A Bm :|</Part>
             <Part label="B">|: D | A | D | A Bm | D | A | Bm | A Bm :|</Part>
@@ -70,7 +70,7 @@
         <Tune
             id="noisy_curlew"
             name="Noisy Curlew"
-            rythm="Reel"
+            rhythm="Reel"
             key="D">
             <Part label="A">|: D G | D A | D | G A | D G | D A | D | A D :|</Part>
             <Part label="B">|: D G | D A | D G | A D | D G | D A | D G | A D :|</Part>

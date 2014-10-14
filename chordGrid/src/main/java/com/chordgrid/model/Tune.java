@@ -21,7 +21,7 @@ import abc.notation.BarLine;
 import abc.notation.RepeatBarLine;
 import abc.parser.PositionableNote;
 
-public class Tune implements ITuneItem, Parcelable {
+public class Tune extends TunebookItem implements Parcelable {
 
     /**
      * ***********************************************************************
@@ -51,17 +51,17 @@ public class Tune implements ITuneItem, Parcelable {
     private String id;
     private int index;
     private String name;
+    private Rhythm mRhythm;
     private String chordGrid;
     private String key;
-    private Rythm rythm;
     private List<TunePart> parts = new ArrayList<TunePart>();
 
     public Tune() {
     }
 
-    public Tune(String name, Rythm rythm, String key, String chordGrid) {
+    public Tune(String name, Rhythm rhythm, String key, String chordGrid) {
         this.name = name;
-        this.rythm = rythm;
+        mRhythm = rhythm;
         this.key = key;
         this.chordGrid = chordGrid;
     }
@@ -121,8 +121,8 @@ public class Tune implements ITuneItem, Parcelable {
             } else if ("I:".equalsIgnoreCase(prefix)) {
                 id = lines[currentLine].substring(2).trim();
             } else if ("R:".equalsIgnoreCase(prefix)) {
-                rythm = Rythm.parse(lines[currentLine].substring(2));
-                Log.v(TAG, String.format("Rythm = %s", rythm));
+                setRhythm(Rhythm.parse(lines[currentLine].substring(2)));
+                Log.v(TAG, String.format("Rhythm = %s", getRhythm()));
             } else if ("K:".equalsIgnoreCase(prefix)) {
                 key = lines[currentLine].substring(2);
                 Log.v(TAG, String.format("Key = %s", key));
@@ -222,7 +222,7 @@ public class Tune implements ITuneItem, Parcelable {
         xmlSerializer.startTag("", "Tune");
         xmlSerializer.attribute("", "id", getId());
         xmlSerializer.attribute("", "name", getName());
-        xmlSerializer.attribute("", "rythm", getRythm().getName());
+        xmlSerializer.attribute("", "rhythm", getRhythm().getName());
         xmlSerializer.attribute("", "key", getKey());
         for (TunePart part : parts) {
             part.xmlSerialize(xmlSerializer);
@@ -248,8 +248,8 @@ public class Tune implements ITuneItem, Parcelable {
             id = attrValue;
         else if ("name".equals(attrName))
             setName(attrValue);
-        else if ("rythm".equals(attrName)) {
-            rythm = Rythm.parse(attrValue);
+        else if ("rhythm".equals(attrName)) {
+            setRhythm(Rhythm.parse(attrValue));
         } else if ("key".equals(attrName))
             key = attrValue;
     }
@@ -267,7 +267,7 @@ public class Tune implements ITuneItem, Parcelable {
         sb.append("X:").append(getIndex()).append("\n");
         sb.append("I:").append(getId()).append("\n");
         sb.append("T:").append(getName()).append("\n");
-        sb.append("R:").append(getRythm().getName()).append("\n");
+        sb.append("R:").append(getRhythm().getName()).append("\n");
         sb.append("K:").append(getKey()).append("\n");
         sb.append(getChordsString());
         return sb.toString();
@@ -323,6 +323,24 @@ public class Tune implements ITuneItem, Parcelable {
             return name;
         return name.substring(comma + 1).trim() + " "
                 + name.substring(0, comma);
+    }
+
+    /**
+     * Getter for rhythm.
+     */
+    @Override
+    public Rhythm getRhythm() {
+        return mRhythm;
+    }
+
+    /**
+     * Setter for rhythm.
+     *
+     * @param rhythm The rythm.
+     */
+    public void setRhythm(Rhythm rhythm) {
+        mRhythm = rhythm;
+        notifyObservers(mRhythm);
     }
 
     public int countParts() {
@@ -414,10 +432,6 @@ public class Tune implements ITuneItem, Parcelable {
         return sb.toString();
     }
 
-    public Rythm getRythm() {
-        return rythm;
-    }
-
     public String getKey() {
         return key;
     }
@@ -433,7 +447,7 @@ public class Tune implements ITuneItem, Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[]{id, name, rythm.getName(), key});
+        dest.writeStringArray(new String[]{id, name, getRhythm().getName(), key});
         dest.writeTypedList(parts);
     }
 
@@ -442,13 +456,15 @@ public class Tune implements ITuneItem, Parcelable {
         in.readStringArray(data);
         id = data[0];
         name = data[1];
-        rythm = Rythm.parse(data[2]);
+        setRhythm(Rhythm.parse(data[2]));
         key = data[3];
         if (parts == null)
             parts = new ArrayList<TunePart>();
         in.readTypedList(parts, TunePart.CREATOR);
+        for (TunePart part : parts) {
+            part.setTune(this);
+        }
         updateChordGridFromParts();
-
     }
 
     /**
@@ -473,10 +489,10 @@ public class Tune implements ITuneItem, Parcelable {
 
         Tune tune = (Tune) o;
 
-        // Check rythm
-        if (rythm == null && tune.rythm != null)
+        // Check rhythm
+        if (mRhythm == null && tune.mRhythm != null)
             return false;
-        if (rythm != null && !rythm.equals(tune.rythm))
+        if (mRhythm != null && !mRhythm.equals(tune.mRhythm))
             return false;
 
         // Check key
@@ -499,7 +515,7 @@ public class Tune implements ITuneItem, Parcelable {
         int hash = 1;
         hash = hash * 31 + getId().hashCode();
         hash = hash * 31 + getIndex();
-        hash = hash * 31 + getRythm().hashCode();
+        hash = hash * 31 + (getRhythm() == null ? 0 : getRhythm().hashCode());
         hash = hash * 31 + getKey().hashCode();
         hash = hash * 31 + getName().hashCode();
         hash = hash * 31 + getChordsString().hashCode();

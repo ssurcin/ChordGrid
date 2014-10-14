@@ -2,28 +2,36 @@
 <pre-dex-items>
 
     <item
-        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-76b14aa17b81bbc163cd80a446a1b7b586578390.jar"
-        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.google.android.gms\play-services\5.2.08\classes.jar"
-        jumboMode="false" revision="19.1.0" sha1="1ed7a7a05185651f9af41ad93711cb96b66f331c" />
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-7fde88e5e1bc9b6312e5617d5ed5db1dcaa306e5.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.1.11\classes.jar"
+        jumboMode="false" revision="19.1.0" sha1="0f700f6802ba1a1f1fa7ac26d5db0666a89d75a6" />
     <item
-        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-76b14aa17b81bbc163cd80a446a1b7b586578390.jar"
-        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.google.android.gms\play-services\5.2.08\classes.jar"
-        jumboMode="false" revision="20.0.0" sha1="1ed7a7a05185651f9af41ad93711cb96b66f331c" />
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-f7dc459baac6bb597593a40b9b20ef096f837b06.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\classes.jar"
+        jumboMode="false" revision="19.1.0" sha1="8694693636ab36910c8100ce527c258ff3ebece0" />
     <item
-        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\abc4j_v0.5-63cb9512f656ae51525ea0af44eb285cb94d12ca.jar"
-        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\libs\abc4j_v0.5.jar"
-        jumboMode="false" revision="19.1.0" sha1="477581e192f835cb363e010daa1a216007bc4396" />
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-05ecf1b2a5b8ccab71e481bc021d47a3413c2efe.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.android.support\appcompat-v7\20.0.0\classes.jar"
+        jumboMode="false" revision="19.1.0" sha1="f21927d22fe31889ecce94dd697a2e75b137e0ef" />
     <item
-        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-96cfc7bc5d03bc3acbb5eda27bb47c3bd16b8128.jar"
-        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.android.support\appcompat-v7\19.1.0\classes.jar"
-        jumboMode="false" revision="19.1.0" sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28" />
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\classes-4eca19237efb2379812a61f065be47cb94e1c3e8.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\ChordGrid\dslvLibrary\unspecified\classes.jar"
+        jumboMode="false" revision="19.1.0" sha1="dceede6a52df7f1d3bfe0e8f829f90b75614ef94" />
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\internal_impl-20.0.0-7162b414678f94534042e9dcbde74150b7cb27f0.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\exploded-aar\com.android.support\support-v4\20.0.0\libs\internal_impl-20.0.0.jar"
+        jumboMode="false" revision="19.1.0" sha1="e40b3078e3fbd353c9f44da8df25a8fc0078209d" />
     <item
         dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\abc4j_v0.5-63cb9512f656ae51525ea0af44eb285cb94d12ca.jar"
         jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\libs\abc4j_v0.5.jar"
         jumboMode="false" revision="20.0.0" sha1="477581e192f835cb363e010daa1a216007bc4396" />
     <item
-        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\support-v4-19.1.0-e311e493b238b75da4095bd5ee7b69d76d73dc42.jar"
-        jar="C:\Program Files (x86)\Android\android-studio\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
-        jumboMode="false" revision="19.1.0" sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67" />
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\support-annotations-20.0.0-79e42da7c2657068d681cf877be8b4cc06e3cb7a.jar"
+        jar="C:\Program Files (x86)\Android\android-studio\sdk\extras\android\m2repository\com\android\support\support-annotations\20.0.0\support-annotations-20.0.0.jar"
+        jumboMode="false" revision="19.1.0" sha1="9d9013e9ff35fc3756411e62873c363c70c638fa" />
+    <item
+        dex="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\build\intermediates\pre-dexed\debug\abc4j_v0.5-63cb9512f656ae51525ea0af44eb285cb94d12ca.jar"
+        jar="C:\Users\Sylvain\AndroidStudioProjects\ChordGrid\chordGrid\libs\abc4j_v0.5.jar"
+        jumboMode="false" revision="19.1.0" sha1="477581e192f835cb363e010daa1a216007bc4396" />
 
 </pre-dex-items>

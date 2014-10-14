@@ -1,1 +1,2 @@
 include ':chordGrid'
+include ':dslvLibrary'

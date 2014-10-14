@@ -87,7 +87,7 @@ public class TuneGridFragment extends Fragment {
         Tune tune = getTune();
 
         setTitle(tune.getTitle());
-        setRythm(tune.getRythm().getName());
+        setRythm(tune.getRhythm().getName());
         setKey(tune.getKey());
         setTuneIndex();
 

@@ -1,6 +1,8 @@
 package com.chordgrid.model;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -27,11 +29,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class TuneBook extends Observable implements Parcelable {
+public class TuneBook extends Observable implements Parcelable, Observer {
 
     /**
      * ***********************************************************************
@@ -56,6 +59,7 @@ public class TuneBook extends Observable implements Parcelable {
     private final String TAG = "TuneBook";
     private final Map<String, Tune> tunes = new HashMap<String, Tune>();
     private final List<TuneSet> tuneSets = new ArrayList<TuneSet>();
+    private Handler progressDialogHandler;
 
     public TuneBook() {
     }
@@ -74,6 +78,10 @@ public class TuneBook extends Observable implements Parcelable {
             tuneSets.addAll(parseTuneSets(parser));
         }
     }
+
+    /**************************************************************************
+     * Text parsing
+     *************************************************************************/
 
     /**
      * Builds a new instance of TuneBook from a text representation.
@@ -98,17 +106,13 @@ public class TuneBook extends Observable implements Parcelable {
             } else if (source.startsWith("SET:")) {
                 try {
                     TuneSet set = new TuneSet(this, source);
-                    tuneSets.add(set);
+                    add(set);
                 } catch (Exception e) {
                     Log.w(TAG, e.getMessage());
                 }
             }
         }
     }
-
-    /**************************************************************************
-     * Text parsing
-     *************************************************************************/
 
     /**
      * ***********************************************************************
@@ -234,15 +238,15 @@ public class TuneBook extends Observable implements Parcelable {
         return tuneSets.size();
     }
 
-    public List<Rythm> getAllTuneSetRythms() {
-        TreeSet<Rythm> rythms = new TreeSet<Rythm>();
+    public List<Rhythm> getAllTuneSetRythms() {
+        TreeSet<Rhythm> rhythms = new TreeSet<Rhythm>();
         for (TuneSet tuneSet : tuneSets)
-            rythms.add(tuneSet.getRythm());
-        ArrayList<Rythm> list = new ArrayList<Rythm>(rythms);
-        Collections.sort(list, new Comparator<Rythm>() {
+            rhythms.add(tuneSet.getRhythm());
+        ArrayList<Rhythm> list = new ArrayList<Rhythm>(rhythms);
+        Collections.sort(list, new Comparator<Rhythm>() {
 
             @Override
-            public int compare(Rythm lhs, Rythm rhs) {
+            public int compare(Rhythm lhs, Rhythm rhs) {
                 return lhs.getName().compareTo(rhs.getName());
             }
 
@@ -250,10 +254,10 @@ public class TuneBook extends Observable implements Parcelable {
         return list;
     }
 
-    public ArrayList<TuneSet> getAllSetsWithRythm(Rythm rythm) {
+    public ArrayList<TuneSet> getAllSetsWithRythm(Rhythm rhythm) {
         ArrayList<TuneSet> result = new ArrayList<TuneSet>();
         for (TuneSet set : tuneSets) {
-            if (rythm.equals(set.getRythm()))
+            if (rhythm.equals(set.getRhythm()))
                 result.add(set);
         }
         return result;
@@ -262,15 +266,15 @@ public class TuneBook extends Observable implements Parcelable {
     /**
      * Gets all rythms expressed in the tune collection.
      */
-    public List<Rythm> getAllTuneRythms() {
-        TreeSet<Rythm> rythms = new TreeSet<Rythm>();
+    public List<Rhythm> getAllTuneRythms() {
+        TreeSet<Rhythm> rhythms = new TreeSet<Rhythm>();
         for (Tune tune : tunes.values())
-            rythms.add(tune.getRythm());
-        ArrayList<Rythm> list = new ArrayList<Rythm>(rythms);
-        Collections.sort(list, new Comparator<Rythm>() {
+            rhythms.add(tune.getRhythm());
+        ArrayList<Rhythm> list = new ArrayList<Rhythm>(rhythms);
+        Collections.sort(list, new Comparator<Rhythm>() {
 
             @Override
-            public int compare(Rythm lhs, Rythm rhs) {
+            public int compare(Rhythm lhs, Rhythm rhs) {
                 return lhs.getName().compareTo(rhs.getName());
             }
 
@@ -279,12 +283,12 @@ public class TuneBook extends Observable implements Parcelable {
     }
 
     /**
-     * Retrieve all tunes with a given rythm.
+     * Retrieve all tunes with a given rhythm.
      */
-    public ArrayList<Tune> getAllTunesWithRythm(Rythm rythm) {
+    public ArrayList<Tune> getAllTunesWithRythm(Rhythm rhythm) {
         ArrayList<Tune> result = new ArrayList<Tune>();
         for (Tune tune : tunes.values()) {
-            if (rythm.equals(tune.getRythm()))
+            if (rhythm.equals(tune.getRhythm()))
                 result.add(tune);
         }
         return result;
@@ -302,9 +306,9 @@ public class TuneBook extends Observable implements Parcelable {
         return null;
     }
 
-    public void remove(List<? extends ITuneItem> discardedItems) {
+    public void remove(List<? extends TunebookItem> discardedItems) {
         int count = 0;
-        for (ITuneItem item : discardedItems) {
+        for (TunebookItem item : discardedItems) {
             if (item instanceof Tune) {
                 tunes.remove(((Tune) item).getId());
                 count++;
@@ -312,11 +316,11 @@ public class TuneBook extends Observable implements Parcelable {
                 tuneSets.remove(item);
                 count++;
             }
+            item.deleteObserver(this);
         }
         if (count > 0) {
+            // Notify observers that the tune set collection has changed
             setChanged();
-            Log.d(TAG, String.format("Notifying %d observers of new tuneset",
-                    countObservers()));
             notifyObservers(ChangedProperty.TuneSets);
         }
     }
@@ -328,10 +332,27 @@ public class TuneBook extends Observable implements Parcelable {
      */
     public void add(TuneSet tuneset) {
         tuneSets.add(tuneset);
+
+        // Observe this tune set
+        tuneset.addObserver(this);
+
+        // Notify observers that the tune set collection has changed
         setChanged();
-        Log.d(TAG, String.format("Notifying %d observers of new tuneset",
-                countObservers()));
         notifyObservers(ChangedProperty.TuneSets);
+    }
+
+    public void replaceTuneSet(TuneSet oldTuneSet, TuneSet newTuneSet) {
+        int index = tuneSets.indexOf(oldTuneSet);
+        if (index >= 0) {
+            oldTuneSet.deleteObserver(this);
+            tuneSets.remove(index);
+            tuneSets.add(index, newTuneSet);
+            newTuneSet.addObserver(this);
+
+            // Notify observers that the tune set collection has changed
+            setChanged();
+            notifyObservers(ChangedProperty.TuneSets);
+        }
     }
 
     @Override
@@ -356,38 +377,67 @@ public class TuneBook extends Observable implements Parcelable {
      * ***********************************************************************
      */
 
-    public void merge(TuneBook other, ProgressDialog progressDialog) {
+    public void merge(TuneBook other) {
         Log.v(TAG, "Merging tunebooks");
-
-        mergeTunes(other, progressDialog);
-
-        mergeSets(other, progressDialog);
-
+        mergeTunes(other, null);
+        mergeSets(other, null);
         Log.v(TAG, "Merging complete");
     }
 
-    private void mergeTunes(TuneBook other, ProgressDialog progressDialog) {
+    public void mergeAsync(Context context, final TuneBook other) {
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle(R.string.merging_tunebook);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.show();
+
+        progressDialogHandler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.v(TAG, "Merging tunebooks (async)");
+                mergeTunes(other, progressDialog);
+                mergeSets(other, progressDialog);
+                Log.v(TAG, "Merging complete (async)");
+                progressDialog.dismiss();
+                notifyObservers(ChangedStatus.MergeComplete);
+            }
+        }).start();
+    }
+
+    private void mergeTunes(TuneBook other, final ProgressDialog progressDialog) {
         Log.v(TAG, "Merging tunes from another tunebook");
 
         HashSet<Tune> originalTunes = new HashSet<Tune>(tunes.values());
 
         Set<Map.Entry<String, Tune>> entries = other.tunes.entrySet();
-        int nbEntries = entries.size();
+        final int nbEntries = entries.size();
         if (progressDialog != null) {
-            progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.merging_tunebook_tune_fmt, 0, nbEntries, 0));
-            progressDialog.setProgress(0);
-            progressDialog.setMax(nbEntries);
+            progressDialogHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.merging_tunebook_tunes));
+                    progressDialog.setProgress(0);
+                    progressDialog.setMax(nbEntries);
+                }
+            });
         }
-        int current = 0;
 
         for (Map.Entry<String, Tune> entry : entries) {
             Tune tune = entry.getValue();
             String id = entry.getKey();
 
-            ++current;
             if (progressDialog != null) {
-                progressDialog.setMessage(progressDialog.getContext().getResources().getString(R.string.merging_tunebook_tune_fmt, current, nbEntries, (int) ((float) current / nbEntries * 100)));
-                progressDialog.incrementProgressBy(1);
+                progressDialogHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.incrementProgressBy(1);
+                    }
+                });
             }
 
             if (originalTunes.contains(tune)) {
@@ -431,28 +481,49 @@ public class TuneBook extends Observable implements Parcelable {
         return String.format("%s_%d", underscore == -1 ? longestId : longestId.substring(0, underscore - 1), highest + 1);
     }
 
-    private void mergeSets(TuneBook other, ProgressDialog progressDialog) {
+    private void mergeSets(final TuneBook other, final ProgressDialog progressDialog) {
         Log.v(TAG, "Merging sets from another tunebook");
 
-        int nbSets = other.tuneSets.size();
+        final int nbSets = other.tuneSets.size();
         if (progressDialog != null) {
-            progressDialog.setMax(nbSets);
-            progressDialog.setProgress(0);
-            progressDialog.setMessage(progressDialog.getContext().getString(R.string.merging_tunebook_set_fmt, 0, nbSets, 0));
+            progressDialogHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    progressDialog.setMax(nbSets);
+                    progressDialog.setProgress(0);
+                    progressDialog.setMessage(progressDialog.getContext().getString(R.string.merging_tunebook_sets));
+                }
+            });
         }
 
-        int current = 0;
         for (TuneSet set : other.tuneSets) {
-            ++current;
             if (progressDialog != null) {
-                progressDialog.setMessage(progressDialog.getContext().getString(R.string.merging_tunebook_set_fmt, current, nbSets, (int) ((float) current / nbSets * 100)));
-                progressDialog.incrementProgressBy(1);
+                progressDialogHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressDialog.incrementProgressBy(1);
+                    }
+                });
             }
             Log.d(TAG, String.format("Inserting set '%s'.", set.getTitle()));
             tuneSets.add(set);
         }
 
         Log.v(TAG, "Merging sets complete");
+    }
+
+    /**
+     * Reacts to a notification from one of the observed objects.
+     *
+     * @param observable The observed object.
+     * @param data       Additional data to specify what changed in the object.
+     */
+    @Override
+    public void update(Observable observable, Object data) {
+        if (observable instanceof TuneSet) {
+            setChanged();
+            notifyObservers(observable);
+        }
     }
 
     /**
@@ -463,6 +534,10 @@ public class TuneBook extends Observable implements Parcelable {
 
     public enum ChangedProperty {
         Tunes, TuneSets
+    }
+
+    public enum ChangedStatus {
+        MergeComplete
     }
 
     private class TuneIndexComparator implements Comparator<String> {
@@ -480,7 +555,5 @@ public class TuneBook extends Observable implements Parcelable {
             else
                 return 1;
         }
-
-
     }
 }

@@ -108,7 +108,7 @@ public class ExpandableTunesListFragment extends EditableExpandableListFragment 
                 Log.d(TAG, "The current tuneset is empty, do not add it");
             } else {
                 getTuneBook().add(tuneset);
-                Log.d(TAG, String.format("Added tuneset \"%s\" (%s)", tuneset.toString(), tuneset.getRythm()));
+                Log.d(TAG, String.format("Added tuneset \"%s\" (%s)", tuneset.toString(), tuneset.getRhythm()));
             }
             leaveNewSet();
         }

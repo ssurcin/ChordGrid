@@ -26,8 +26,8 @@
             android:name=".MainActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
-            android:theme="@style/Theme.AppCompat.Light"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat.Light">
             <meta-data
                 android:name="com.google.android.apps.drive.APP_ID"
                 android:value="id=525686408251" />
@@ -59,9 +59,9 @@
         <activity
             android:name=".tunesets.DisplayTuneSetActivity"
             android:configChanges="orientation"
+            android:icon="@drawable/tuneset_icon"
             android:label="@string/title_activity_display_tune_set"
-            android:parentActivityName=".MainActivity"
-            android:icon="@drawable/tuneset_icon">
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -77,7 +77,7 @@
                 android:value="com.chordgrid.MainActivity" />
         </activity>
         <activity
-            android:name="com.chordgrid.tunes.DisplayTuneGridActivity"
+            android:name=".tunes.DisplayTuneGridActivity"
             android:label="@string/title_activity_display_tune_grid"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -92,6 +92,14 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />
+        </activity>
+        <activity
+            android:name=".tunesets.ReorderTuneSetActivity"
+            android:label="@string/title_activity_reorder_tune_set"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.chordgrid.MainActivity" />
         </activity>
     </application>
 

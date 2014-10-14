@@ -14,21 +14,41 @@ import org.xmlpull.v1.XmlSerializer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * A set of tunes (i.e. references to existing tunes).
  *
  * @author sylvain.surcin@gmail.com
  */
-public class TuneSet implements ITuneItem, Parcelable {
+public class TuneSet extends TunebookItem implements Parcelable {
 
+    /**
+     * ***********************************************************************
+     * XML parsing
+     * ***********************************************************************
+     */
+
+    public static final String XML_TAG = "TuneSet";
+    public static final Parcelable.Creator<TuneSet> CREATOR = new Creator<TuneSet>() {
+
+        @Override
+        public TuneSet[] newArray(int size) {
+            return new TuneSet[size];
+        }
+
+        @Override
+        public TuneSet createFromParcel(Parcel source) {
+            return new TuneSet(source);
+        }
+    };
     private static final String TAG = "TuneSet";
-
+    private static final String XML_TAG_TUNEREF = "TuneRef";
+    private static final String XML_TAG_ATTR_ID = "id";
+    private final ArrayList<Tune> tunes = new ArrayList<Tune>();
     private TuneBook tuneBook;
     private String name;
-    private final List<Tune> tunes = new ArrayList<Tune>();
 
     public TuneSet() {
         tuneBook = null;
@@ -41,8 +61,8 @@ public class TuneSet implements ITuneItem, Parcelable {
     /**
      * ***********************************************************************
      * Text parsing
-     *
-     * @throws Exception ***********************************************************************
+     * <p/>
+     * ***********************************************************************
      */
 
     public TuneSet(TuneBook tunebook, String tuneSource) throws Exception {
@@ -83,38 +103,6 @@ public class TuneSet implements ITuneItem, Parcelable {
         }
     }
 
-    public String toText() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SET:").append(getName()).append("\n");
-        int count = tunes.size();
-        for (int i = 0; i < count; i++) {
-            sb.append(tunes.get(i).getId());
-            if (i < count - 1)
-                sb.append(" ");
-        }
-        sb.append("\n");
-        return sb.toString();
-    }
-
-    public void serialize(OutputStream outputStream) {
-        try {
-            outputStream.write(toText().getBytes());
-        } catch (Exception e) {
-            Log.e(TAG, String.format("Cannot serialize to text tune set '%s'",
-                    getName()), e);
-        }
-    }
-
-    /**
-     * ***********************************************************************
-     * XML parsing
-     * ***********************************************************************
-     */
-
-    public static final String XML_TAG = "TuneSet";
-    private static final String XML_TAG_TUNEREF = "TuneRef";
-    private static final String XML_TAG_ATTR_ID = "id";
-
     public TuneSet(TuneBook tuneBook, XmlPullParser parser)
             throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, "", XML_TAG);
@@ -138,6 +126,38 @@ public class TuneSet implements ITuneItem, Parcelable {
             // closing tag
             parser.nextTag();
             parser.require(XmlPullParser.END_TAG, "", XML_TAG_TUNEREF);
+        }
+    }
+
+    /**
+     * ***********************************************************************
+     * Parcelable implementation
+     * ***********************************************************************
+     */
+
+    public TuneSet(Parcel source) {
+        readFromParcel(source);
+    }
+
+    public String toText() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SET:").append(getName()).append("\n");
+        int count = tunes.size();
+        for (int i = 0; i < count; i++) {
+            sb.append(tunes.get(i).getId());
+            if (i < count - 1)
+                sb.append(" ");
+        }
+        sb.append("\n");
+        return sb.toString();
+    }
+
+    public void serialize(OutputStream outputStream) {
+        try {
+            outputStream.write(toText().getBytes());
+        } catch (Exception e) {
+            Log.e(TAG, String.format("Cannot serialize to text tune set '%s'",
+                    getName()), e);
         }
     }
 
@@ -183,24 +203,30 @@ public class TuneSet implements ITuneItem, Parcelable {
         return sb.toString();
     }
 
+    /**
+     * ***********************************************************************
+     * Operations
+     * ***********************************************************************
+     */
+
     @Override
-    public Rythm getRythm() {
-        HashMap<Rythm, Integer> rythmCount = new HashMap<Rythm, Integer>();
+    public Rhythm getRhythm() {
+        HashMap<Rhythm, Integer> rythmCount = new HashMap<Rhythm, Integer>();
         for (Tune tune : tunes) {
-            Rythm rythm = tune.getRythm();
-            Integer count = rythmCount.get(rythm);
+            Rhythm rhythm = tune.getRhythm();
+            Integer count = rythmCount.get(rhythm);
             if (count == null)
                 count = 0;
             count++;
-            rythmCount.put(rythm, count);
+            rythmCount.put(rhythm, count);
         }
         int maxCount = 0;
-        Rythm r = null;
-        for (Rythm currentRythm : rythmCount.keySet()) {
-            int count = rythmCount.get(currentRythm);
+        Rhythm r = null;
+        for (Rhythm currentRhythm : rythmCount.keySet()) {
+            int count = rythmCount.get(currentRhythm);
             if (count > maxCount) {
                 maxCount = count;
-                r = currentRythm;
+                r = currentRhythm;
             }
         }
         return r;
@@ -223,10 +249,6 @@ public class TuneSet implements ITuneItem, Parcelable {
         xmlSerializer.endTag("", XML_TAG);
     }
 
-    /**************************************************************************
-     * Operations
-     *************************************************************************/
-
     /**
      * Adds a new tune to this set.
      *
@@ -234,6 +256,10 @@ public class TuneSet implements ITuneItem, Parcelable {
      */
     public void add(Tune tune) {
         tunes.add(tune);
+
+        // Notify observers of a change
+        setChanged();
+        notifyObservers(tunes);
     }
 
     /**
@@ -241,6 +267,10 @@ public class TuneSet implements ITuneItem, Parcelable {
      */
     public void clear() {
         tunes.clear();
+
+        // Notify observers of a change
+        setChanged();
+        notifyObservers(tunes);
     }
 
     /**
@@ -253,14 +283,18 @@ public class TuneSet implements ITuneItem, Parcelable {
         return tunes.indexOf(tune);
     }
 
-    /**
-     * ***********************************************************************
-     * Parcelable implementation
-     * ***********************************************************************
-     */
+    public ArrayList<Tune> getTunes() {
+        return tunes;
+    }
 
-    public TuneSet(Parcel source) {
-        readFromParcel(source);
+    public void setTunes(Collection<? extends Tune> newTunes) {
+        tunes.clear();
+        for (Tune tune : newTunes)
+            tunes.add(tune);
+
+        // Notify observers of a change
+        setChanged();
+        notifyObservers(tunes);
     }
 
     @Override
@@ -276,18 +310,5 @@ public class TuneSet implements ITuneItem, Parcelable {
     public void readFromParcel(Parcel in) {
         in.readTypedList(tunes, Tune.CREATOR);
     }
-
-    public static final Parcelable.Creator<TuneSet> CREATOR = new Creator<TuneSet>() {
-
-        @Override
-        public TuneSet[] newArray(int size) {
-            return new TuneSet[size];
-        }
-
-        @Override
-        public TuneSet createFromParcel(Parcel source) {
-            return new TuneSet(source);
-        }
-    };
 
 }

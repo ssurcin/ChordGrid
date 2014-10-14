@@ -31,5 +31,8 @@
     <string name="merging_tunebook">Merging Tune Book</string>
     <string name="merging_tunebook_tune_fmt">Merged %1$d/%2$d tunes (%3$d%%)…</string>
     <string name="merging_tunebook_set_fmt">Merged %1$d/%2$d sets (%3$d%%)…</string>
-
+    <string name="merging_tunebook_tunes">Merging tunes...</string>
+    <string name="merging_tunebook_sets">Merging sets...</string>
+    <string name="title_activity_reorder_tune_set">ReorderTuneSetActivity</string>
+    <string name="reorder_tunes">Reorder tunes</string>
 </resources>

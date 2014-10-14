@@ -10,10 +10,12 @@ import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-import com.chordgrid.model.ITuneItem;
 import com.chordgrid.model.TuneBook;
+import com.chordgrid.model.TunebookItem;
+import com.chordgrid.util.ListViewItemPosition;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Observer;
 
@@ -27,34 +29,24 @@ public abstract class EditableExpandableListAdapter extends
 
     public static final int MODE_NONE = 0;
     public static final int MODE_DISCARD = 1;
+    protected final ArrayList<String> groupNames = new ArrayList<String>();
+    protected final ArrayList<ArrayList<SelectableItem>> mGroups = new ArrayList<ArrayList<SelectableItem>>();
+
+    /**
+     * A way to remember the position(s) of each selectable item in the list view.
+     */
+    protected final HashMap<TunebookItem, ArrayList<ListViewItemPosition>> mItemPositions = new HashMap<TunebookItem, ArrayList<ListViewItemPosition>>();
 
     private int mode;
-
     /**
      * The inflater used to create the group and child views.
      */
     private LayoutInflater inflater;
-
     /**
      * The context activity.
      */
     private Activity activity;
-
     private TuneBook tuneBook;
-
-    protected final ArrayList<String> groupNames = new ArrayList<String>();
-
-    protected class SelectableItem {
-        public ITuneItem item;
-        public boolean selected;
-
-        public SelectableItem(ITuneItem item) {
-            this.item = item;
-            this.selected = false;
-        }
-    }
-
-    protected final ArrayList<ArrayList<SelectableItem>> groups = new ArrayList<ArrayList<SelectableItem>>();
 
     /**
      * ***********************************************************************
@@ -109,7 +101,7 @@ public abstract class EditableExpandableListAdapter extends
 
     public int countSelectedItems() {
         int count = 0;
-        for (ArrayList<SelectableItem> group : groups) {
+        for (ArrayList<SelectableItem> group : mGroups) {
             for (SelectableItem item : group) {
                 if (item.selected)
                     count++;
@@ -118,9 +110,9 @@ public abstract class EditableExpandableListAdapter extends
         return count;
     }
 
-    public List<ITuneItem> getSelectedItems() {
-        ArrayList<ITuneItem> items = new ArrayList<ITuneItem>();
-        for (ArrayList<SelectableItem> group : groups) {
+    public List<TunebookItem> getSelectedItems() {
+        ArrayList<TunebookItem> items = new ArrayList<TunebookItem>();
+        for (ArrayList<SelectableItem> group : mGroups) {
             for (SelectableItem item : group) {
                 if (item.selected)
                     items.add(item.item);
@@ -137,35 +129,59 @@ public abstract class EditableExpandableListAdapter extends
 
     public void clear() {
         groupNames.clear();
-        groups.clear();
+        mGroups.clear();
     }
 
-    public void addGroup(String groupName, ArrayList<? extends ITuneItem> items) {
+    public void addGroup(String groupName, ArrayList<? extends TunebookItem> items) {
         groupNames.add(groupName);
+
         ArrayList<SelectableItem> array = new ArrayList<SelectableItem>();
-        for (ITuneItem item : items)
+
+        int groupIndex = groupNames.size() - 1;
+        int childIndex = 0;
+        for (TunebookItem item : items) {
             array.add(new SelectableItem(item));
-        groups.add(array);
+            ListViewItemPosition itemPosition = new ListViewItemPosition(groupIndex, childIndex++);
+            ArrayList<ListViewItemPosition> positions = mItemPositions.get(item);
+            if (positions == null) {
+                positions = new ArrayList<ListViewItemPosition>();
+                mItemPositions.put(item, positions);
+                item.addObserver(this);
+            }
+            positions.add(itemPosition);
+        }
+
+        mGroups.add(array);
+    }
+
+    /**
+     * Gets the positions (group, child) of an item.
+     *
+     * @param item An item.
+     * @return The item's positions or null.
+     */
+    public List<ListViewItemPosition> getListViewItemPositions(TunebookItem item) {
+        return mItemPositions.get(item);
     }
 
     @Override
     public int getGroupCount() {
-        return groups.size();
+        return mGroups.size();
     }
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return groups.get(groupPosition).size();
+        return mGroups.get(groupPosition).size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        return groups.get(groupPosition);
+        return mGroups.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return groups.get(groupPosition).get(childPosition);
+        return mGroups.get(groupPosition).get(childPosition);
     }
 
     @Override
@@ -223,8 +239,8 @@ public abstract class EditableExpandableListAdapter extends
                         .findViewById(R.id.selectable_item_checkBox);
             }
 
-            if (groupPosition < groups.size()) {
-                ArrayList<SelectableItem> group = (ArrayList<SelectableItem>) groups
+            if (groupPosition < mGroups.size()) {
+                ArrayList<SelectableItem> group = (ArrayList<SelectableItem>) mGroups
                         .get(groupPosition);
                 final SelectableItem selectedItem = group.get(childPosition);
 
@@ -261,5 +277,15 @@ public abstract class EditableExpandableListAdapter extends
         if (getMode() == MODE_DISCARD)
             return true;
         return false;
+    }
+
+    protected class SelectableItem {
+        public TunebookItem item;
+        public boolean selected;
+
+        public SelectableItem(TunebookItem item) {
+            this.item = item;
+            this.selected = false;
+        }
     }
 }

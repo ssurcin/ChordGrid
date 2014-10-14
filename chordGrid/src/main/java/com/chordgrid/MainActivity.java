@@ -4,8 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
+import android.app.Activity;
 import android.app.FragmentTransaction;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -19,8 +19,10 @@ import android.widget.Toast;
 
 import com.chordgrid.drive.DriveClientManager;
 import com.chordgrid.model.TuneBook;
+import com.chordgrid.model.TuneSet;
 import com.chordgrid.settings.UserSettingsActivity;
 import com.chordgrid.tunes.ExpandableTunesListFragment;
+import com.chordgrid.tunesets.TuneSetAdapter;
 import com.chordgrid.util.StorageUtil;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -30,6 +32,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.StringReader;
+import java.util.Observable;
+import java.util.Observer;
 
 public class MainActivity extends FragmentActivity implements TabListener {
 
@@ -207,9 +211,16 @@ public class MainActivity extends FragmentActivity implements TabListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (driveClientManager != null)
             driveClientManager.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == TuneSetAdapter.ACTIVITY_REQUEST_CODE_REORDER && resultCode == Activity.RESULT_OK) {
+            TuneSet tuneSet = (TuneSet) data.getParcelableExtra("tuneset");
+            adapter.updateTuneSet(tuneSet);
+        }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -481,17 +492,18 @@ public class MainActivity extends FragmentActivity implements TabListener {
             return;
         }
 
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(R.string.merging_tunebook);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.show();
-
-        // Do merge with current tunebook.
-        myTunebook.merge(tunebook, progressDialog);
-
-        progressDialog.dismiss();
-
-        // Save result
-        saveTuneBook(myTunebook, tunebookFileName);
+        // Do merge with current tunebook
+        myTunebook.addObserver(new Observer() {
+            @Override
+            public void update(Observable observable, Object data) {
+                if (data instanceof TuneBook.ChangedStatus) {
+                    TuneBook.ChangedStatus status = (TuneBook.ChangedStatus) data;
+                    if (data == TuneBook.ChangedStatus.MergeComplete) {
+                        saveTuneBook((TuneBook) observable, tunebookFileName);
+                    }
+                }
+            }
+        });
+        myTunebook.mergeAsync(this, tunebook);
     }
 }

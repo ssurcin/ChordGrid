@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.chordgrid.EditableExpandableListAdapter;
 import com.chordgrid.R;
-import com.chordgrid.model.Rythm;
+import com.chordgrid.model.Rhythm;
 import com.chordgrid.model.Tune;
 import com.chordgrid.model.TuneBook;
 import com.chordgrid.model.TuneSet;
@@ -40,12 +40,12 @@ public class TunesListAdapter extends EditableExpandableListAdapter implements
     public void setTuneBook(TuneBook tuneBook) {
         super.setTuneBook(tuneBook);
         clear();
-        List<Rythm> rythms = tuneBook.getAllTuneRythms();
-        if (rythms.size() == 0) {
+        List<Rhythm> rhythms = tuneBook.getAllTuneRythms();
+        if (rhythms.size() == 0) {
             addGroup("Empty", new ArrayList<Tune>());
         } else {
-            for (Rythm rythm : rythms) {
-                addGroup(rythm.getName(), tuneBook.getAllTunesWithRythm(rythm));
+            for (Rhythm rhythm : rhythms) {
+                addGroup(rhythm.getName(), tuneBook.getAllTunesWithRythm(rhythm));
             }
         }
     }
@@ -80,8 +80,8 @@ public class TunesListAdapter extends EditableExpandableListAdapter implements
                     .findViewById(R.id.textViewPosition);
         }
 
-        if (groupPosition < groups.size()) {
-            ArrayList<SelectableItem> group = (ArrayList<SelectableItem>) groups
+        if (groupPosition < mGroups.size()) {
+            ArrayList<SelectableItem> group = (ArrayList<SelectableItem>) mGroups
                     .get(groupPosition);
             final Tune selectedTune = (Tune) group.get(childPosition).item;
             titleView.setText(String.format("%s (%s)", selectedTune.getTitle(),

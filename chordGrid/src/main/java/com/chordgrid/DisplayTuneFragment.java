@@ -50,7 +50,7 @@ public class DisplayTuneFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         Tune tune = getTune();
         setTitle(tune.getTitle());
-        setRythm(tune.getRythm().getName());
+        setRythm(tune.getRhythm().getName());
         setKey(tune.getKey());
         setContents(tune.getChordGrid());
         setTuneIndex();

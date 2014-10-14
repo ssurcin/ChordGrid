@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.chordgrid.EditableExpandableListAdapter;
 import com.chordgrid.R;
-import com.chordgrid.model.Rythm;
+import com.chordgrid.model.Rhythm;
 import com.chordgrid.model.TuneBook;
 import com.chordgrid.model.TuneSet;
 
@@ -26,6 +26,12 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
      * The tag for log console filters.
      */
     private static final String TAG = "TuneSetAdapter";
+
+    /**
+     * Identifies exchanges of data between this adapter's activity and the {@link com.chordgrid.tunesets.ReorderTuneSetActivity}.
+     */
+    public static final int ACTIVITY_REQUEST_CODE_REORDER = 1;
+
     /**
      * The currently selection.
      */
@@ -44,12 +50,12 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
 
     private void updateTunebookContents() {
         clear();
-        List<Rythm> rythms = getTuneBook().getAllTuneSetRythms();
-        if (rythms.size() == 0) {
+        List<Rhythm> rhythms = getTuneBook().getAllTuneSetRythms();
+        if (rhythms.size() == 0) {
             addGroup("Empty", new ArrayList<TuneSet>());
         } else {
-            for (Rythm rythm : getTuneBook().getAllTuneSetRythms()) {
-                addGroup(rythm.getName(), getTuneBook().getAllSetsWithRythm(rythm));
+            for (Rhythm rhythm : getTuneBook().getAllTuneSetRythms()) {
+                addGroup(rhythm.getName(), getTuneBook().getAllSetsWithRythm(rhythm));
             }
         }
         notifyDataSetChanged();
@@ -87,29 +93,8 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
             textView.setText(R.string.nothing);
 
         ImageView reorderImageView = (ImageView) convertView.findViewById(R.id.imageViewReorder);
-        reorderImageView.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                TuneSet selectedTuneSet = getSelectedItem();
-                if (selectedTuneSet != null) {
-
-                }
-            }
-        });
-
-        convertView.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                TuneSet selectedTuneSet = getSelectedItem();
-                if (selectedTuneSet != null) {
-                    Intent intent = new Intent(getActivity(), DisplayTuneSetActivity.class);
-                    intent.putExtra(TuneSet.class.getSimpleName(), selectedTuneSet);
-                    getActivity().startActivity(intent);
-                }
-            }
-        });
+        reorderImageView.setOnClickListener(new ReorderOnClickListener(selectedTuneSet));
+        convertView.setOnClickListener(new SelectedSetOnClickListener(selectedTuneSet));
 
         return convertView;
     }
@@ -118,10 +103,6 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
     }
-
-    /**************************************************************************
-     * Properties
-     *************************************************************************/
 
     /**
      * Gets the current selection.
@@ -141,6 +122,16 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
         return (selection != null) ? (TuneSet) selection.item : null;
     }
 
+    public void replaceTuneSet(TuneSet oldTuneSet, TuneSet newTuneSet) {
+        getTuneBook().replaceTuneSet(oldTuneSet, newTuneSet);
+        updateTunebookContents();
+        notifyDataSetChanged();
+    }
+
+    /**************************************************************************
+     * Properties
+     *************************************************************************/
+
     /**
      * Sets the selection to the given tune set, identified by its position within a group.
      *
@@ -149,8 +140,8 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
      */
     public void setSelection(int groupPosition, int childPosition) {
         selection = null;
-        if (groupPosition < groups.size()) {
-            ArrayList<SelectableItem> group = groups.get(groupPosition);
+        if (groupPosition < mGroups.size()) {
+            ArrayList<SelectableItem> group = mGroups.get(groupPosition);
             if (childPosition < group.size()) {
                 selection = group.get(childPosition);
             } else {
@@ -160,10 +151,6 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
             Log.w(TAG, String.format("setSelection(%d, %d) - group position overflow!", groupPosition, childPosition));
         }
     }
-
-    /**************************************************************************
-     * Observer implementation
-     *************************************************************************/
 
     /**
      * Called when one of the observable objects has been updated.
@@ -181,6 +168,41 @@ public class TuneSetAdapter extends EditableExpandableListAdapter implements
                     updateTunebookContents();
                 }
             }
+        }
+    }
+
+    /**
+     * OnClickListener for a given tuneset, that opens the DisplayTuneSetActivity.
+     */
+    private class SelectedSetOnClickListener implements OnClickListener {
+
+        private final TuneSet mSelectedSet;
+
+        public SelectedSetOnClickListener(TuneSet selectedSet) {
+            mSelectedSet = selectedSet;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getActivity(), DisplayTuneSetActivity.class);
+            intent.putExtra(TuneSet.class.getSimpleName(), mSelectedSet);
+            getActivity().startActivity(intent);
+        }
+    }
+
+    private class ReorderOnClickListener implements OnClickListener {
+
+        private final TuneSet mSelectedSet;
+
+        public ReorderOnClickListener(TuneSet selectedSet) {
+            mSelectedSet = selectedSet;
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getActivity(), ReorderTuneSetActivity.class);
+            intent.putExtra(TuneSet.class.getSimpleName(), mSelectedSet);
+            getActivity().startActivityForResult(intent, ACTIVITY_REQUEST_CODE_REORDER);
         }
     }
 }
