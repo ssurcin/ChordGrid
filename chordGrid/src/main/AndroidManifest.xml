@@ -101,6 +101,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.chordgrid.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".settings.RythmListEditActivity"
+            android:label="@string/settings_rhythms">
+            <intent-filter>
+                <action android:name=".settings.rhythms.edit" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

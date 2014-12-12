@@ -51,6 +51,7 @@ public class ReorderTuneSetActivity extends ActionBarActivity {
     private DragSortListView.RemoveListener onRemove = new DragSortListView.RemoveListener() {
         @Override
         public void remove(int which) {
+
             mAdapter.remove(mAdapter.getItem(which));
         }
     };

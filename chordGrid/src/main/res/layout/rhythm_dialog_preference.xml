@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="15dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/rhythm_name"
+        android:id="@+id/nameTextView"
+        android:textStyle="bold" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/nameEditText"
+        android:layout_toRightOf="@+id/nameTextView"
+        android:layout_toEndOf="@+id/nameTextView"
+        android:layout_toLeftOf="@+id/nameFailImageView"
+        android:layout_toStartOf="@+id/nameFailImageView"
+        android:layout_centerHorizontal="true"
+        android:inputType="text" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/nameFailImageView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/fail32" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/errorMessageTextView"
+        android:layout_below="@+id/nameEditText"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/rhythm_signature"
+        android:id="@+id/textViewSignature"
+        android:layout_below="@+id/errorMessageTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingTop="15dp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="3"
+        android:id="@+id/numeratorEditText"
+        android:layout_alignBaseline="@+id/textViewSignature"
+        android:layout_alignLeft="@+id/bpbEditText"
+        android:background="#ffcccccc"
+        android:textSize="20dp"
+        android:layout_alignRight="@+id/bpbEditText"
+        android:layout_alignEnd="@+id/bpbEditText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text=" / "
+        android:id="@+id/textView3"
+        android:layout_alignBaseline="@+id/textViewSignature"
+        android:layout_toRightOf="@+id/numeratorEditText"
+        android:layout_toEndOf="@+id/numeratorEditText" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="3"
+        android:id="@+id/denominatorEditText"
+        android:layout_alignBaseline="@+id/textViewSignature"
+        android:layout_toRightOf="@+id/textView3"
+        android:layout_toEndOf="@+id/textView3"
+        android:background="#ffcccccc"
+        android:textSize="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/rhythm_beats_per_bar"
+        android:id="@+id/bpbTextView"
+        android:layout_below="@+id/textViewSignature"
+        android:textStyle="bold"
+        android:paddingTop="15dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="3"
+        android:id="@+id/bpbEditText"
+        android:layout_alignBaseline="@+id/bpbTextView"
+        android:layout_toRightOf="@+id/bpbTextView"
+        android:layout_toEndOf="@+id/bpbTextView"
+        android:background="#ffcccccc"
+        android:layout_marginLeft="15dp"
+        android:layout_alignRight="@+id/nameEditText"
+        android:layout_alignEnd="@+id/nameEditText"
+        android:layout_marginRight="304dp" />
+
+
+</RelativeLayout>

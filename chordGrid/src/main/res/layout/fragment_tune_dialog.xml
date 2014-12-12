@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.chordgrid.tunes.TuneDialogFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Tune title:"
+        android:id="@+id/textViewTuneTitle"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editTextTuneTitle"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/textViewTuneTitle"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="30dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Rhythm"
+        android:id="@+id/textViewRhythm"
+        android:layout_below="@+id/editTextTuneTitle"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBaseline="@+id/buttonRhythm" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Rhythm"
+        android:id="@+id/buttonRhythm"
+        android:layout_below="@+id/editTextTuneTitle"
+        android:layout_alignLeft="@+id/editTextTuneTitle"
+        android:layout_alignStart="@+id/editTextTuneTitle" />
+</RelativeLayout>

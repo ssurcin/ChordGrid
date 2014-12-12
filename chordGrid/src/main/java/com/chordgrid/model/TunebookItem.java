@@ -1,6 +1,7 @@
 package com.chordgrid.model;
 
 import java.util.Observable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An abstract class subsuming all tunebook items on which the user can operate.
@@ -9,8 +10,25 @@ import java.util.Observable;
  */
 public abstract class TunebookItem extends Observable {
 
-    protected TunebookItem() {
+    /**
+     * The ID of the next instance to be created.
+     */
+    private static volatile AtomicInteger sNextId = new AtomicInteger(1);
 
+    /**
+     * This instance's ID.
+     */
+    private final int mInstanceId;
+
+    protected TunebookItem() {
+        mInstanceId = sNextId.getAndIncrement();
+    }
+
+    /**
+     * Gets this instance's ID.
+     */
+    public int getInstanceId() {
+        return mInstanceId;
     }
 
     /**

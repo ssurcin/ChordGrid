@@ -8,13 +8,10 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.util.Xml;
 
-import com.chordgrid.MainActivity;
 import com.chordgrid.ParcelableUtils;
 import com.chordgrid.R;
 import com.chordgrid.util.MyTextUtils;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.FileOutputStream;
@@ -42,8 +39,6 @@ public class TuneBook extends Observable implements Parcelable, Observer {
      * ***********************************************************************
      */
 
-    public static final String XML_TAG_TUNES = "Tunes";
-    public static final String XML_TAG_TUNESETS = "TuneSets";
     public static final Parcelable.Creator<TuneBook> CREATOR = new Creator<TuneBook>() {
 
         @Override
@@ -64,21 +59,6 @@ public class TuneBook extends Observable implements Parcelable, Observer {
     public TuneBook() {
     }
 
-    public TuneBook(XmlPullParser parser) throws XmlPullParserException,
-            IOException {
-        if (parser.nextTag() == XmlPullParser.START_TAG
-                && parser.getName().equalsIgnoreCase(XML_TAG_TUNES)) {
-            for (Tune tune : parseTunes(parser)) {
-                tunes.put(tune.getId(), tune);
-            }
-        }
-
-        if (parser.nextTag() == XmlPullParser.START_TAG
-                && parser.getName().equalsIgnoreCase(XML_TAG_TUNESETS)) {
-            tuneSets.addAll(parseTuneSets(parser));
-        }
-    }
-
     /**************************************************************************
      * Text parsing
      *************************************************************************/
@@ -86,19 +66,23 @@ public class TuneBook extends Observable implements Parcelable, Observer {
     /**
      * Builds a new instance of TuneBook from a text representation.
      *
+     * @param text    The serialized tune book text.
+     * @param context The activity context (allowing to get access to shared preferences).
      * @throws Exception
      */
-    public TuneBook(String text) throws Exception {
+    public TuneBook(String text, Context context) throws Exception {
         // Split the text into tunes (the first item will be empty or
         // irrelevant).
         String[] tuneSources = MyTextUtils
                 .splitWithDelimiter(text, "(X:|SET:)");
 
+        Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms(context);
+
         for (int i = 1; i < tuneSources.length; i++) {
             String source = tuneSources[i];
             if (source.startsWith("X:")) {
                 try {
-                    Tune tune = new Tune(tuneSources[i]);
+                    Tune tune = new Tune(tuneSources[i], knownRhythms);
                     tunes.put(tune.getId(), tune);
                 } catch (Exception e) {
                     Log.w(TAG, e.getMessage());
@@ -114,50 +98,8 @@ public class TuneBook extends Observable implements Parcelable, Observer {
         }
     }
 
-    /**
-     * ***********************************************************************
-     * Parcelable implementation
-     * ***********************************************************************
-     */
-
     public TuneBook(Parcel source) {
         readFromParcel(source);
-    }
-
-    private List<Tune> parseTunes(XmlPullParser parser)
-            throws XmlPullParserException, IOException {
-        ArrayList<Tune> tunes = new ArrayList<Tune>();
-
-        Log.d(MainActivity.TAG, "parseTunes tag " + parser.getName());
-
-        while (parser.nextTag() == XmlPullParser.START_TAG
-                && Tune.XML_TAG.equalsIgnoreCase(parser.getName())) {
-            Log.d(MainActivity.TAG, "parsing tune");
-            Tune tune = new Tune(parser);
-            tunes.add(tune);
-        }
-
-        parser.require(XmlPullParser.END_TAG, "", XML_TAG_TUNES);
-
-        return tunes;
-    }
-
-    private List<TuneSet> parseTuneSets(XmlPullParser parser)
-            throws XmlPullParserException, IOException {
-        ArrayList<TuneSet> tunesets = new ArrayList<TuneSet>();
-        Log.d(MainActivity.TAG, "parseTuneSets tag " + parser.getName());
-
-        parser.require(XmlPullParser.START_TAG, "", XML_TAG_TUNESETS);
-
-        while (parser.nextTag() == XmlPullParser.START_TAG
-                && parser.getName().equalsIgnoreCase(TuneSet.XML_TAG)) {
-            TuneSet tuneset = new TuneSet(this, parser);
-            tunesets.add(tuneset);
-        }
-
-        parser.require(XmlPullParser.END_TAG, "", XML_TAG_TUNESETS);
-
-        return tunesets;
     }
 
     @Override

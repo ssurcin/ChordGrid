@@ -18,20 +18,19 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.chordgrid.drive.DriveClientManager;
+import com.chordgrid.model.Rhythm;
+import com.chordgrid.model.Tune;
 import com.chordgrid.model.TuneBook;
 import com.chordgrid.model.TuneSet;
 import com.chordgrid.settings.UserSettingsActivity;
 import com.chordgrid.tunes.ExpandableTunesListFragment;
+import com.chordgrid.tunes.TuneDialogFragment;
 import com.chordgrid.tunesets.TuneSetAdapter;
 import com.chordgrid.util.StorageUtil;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.StringReader;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -93,6 +92,8 @@ public class MainActivity extends FragmentActivity implements TabListener {
         Log.d(TAG, "MainActivity onCreate");
 
         setContentView(R.layout.activity_main);
+
+        Tune.CREATOR.setKnownRhythms(Rhythm.getKnownRhythms(this));
 
         // Get the action that triggered the intent filter for this Activity
         final Intent intent = getIntent();
@@ -247,22 +248,35 @@ public class MainActivity extends FragmentActivity implements TabListener {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_add_set) {
-            Log.d(TAG, "Action ADD SET");
-            onAddSet();
-        } else if (id == R.id.action_settings) {
-            Log.d(TAG, "Action SETTINGS");
-            Intent intent = new Intent(getApplicationContext(),
-                    UserSettingsActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.action_discard) {
-            Log.d(TAG, "Action DISCARD");
-            onDiscard();
-        } else if (id == R.id.action_merge) {
-            Log.d(TAG, "Action MERGE");
-            onMerge();
-        } else {
-            Log.d(TAG, String.format("Action item not covered %X", id));
+        switch (id) {
+            case R.id.action_add_tune:
+                Log.d(TAG, "Action ADD TUNE");
+                onAddTune();
+                break;
+
+            case R.id.action_add_set:
+                Log.d(TAG, "Action ADD SET");
+                onAddSet();
+                break;
+
+            case R.id.action_settings:
+                Log.d(TAG, "Action SETTINGS");
+                startActivity(new Intent(getApplicationContext(), UserSettingsActivity.class));
+                break;
+
+            case R.id.action_discard:
+                Log.d(TAG, "Action DISCARD");
+                onDiscard();
+                break;
+
+            case R.id.action_merge:
+                Log.d(TAG, "Action MERGE");
+                onMerge();
+                break;
+
+            default:
+                Log.d(TAG, String.format("Action item not covered %X", id));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -312,11 +326,6 @@ public class MainActivity extends FragmentActivity implements TabListener {
 
     /**
      * Open a file from local file VIEW action. <br/>
-     * Expected file types are:
-     * <ul>
-     * <li>.cgx: XML representation</li>
-     * <li>.txt: text representation</li>
-     * </ul>
      *
      * @param intent The intent with the data to open.
      */
@@ -332,10 +341,8 @@ public class MainActivity extends FragmentActivity implements TabListener {
             int lastDot = path.lastIndexOf('.');
             if (lastDot >= 0) {
                 String extension = path.substring(lastDot + 1);
-                if ("xml".equalsIgnoreCase(extension))
-                    tunebook = parseXmlChordGridString(fileContents);
-                else if ("txt".equalsIgnoreCase(extension))
-                    tunebook = new TuneBook(fileContents);
+                if ("txt".equalsIgnoreCase(extension))
+                    tunebook = new TuneBook(fileContents, this);
                 else {
                     showMessage(String.format(
                             "Unexpected file extension '.%s'!", extension));
@@ -349,20 +356,6 @@ public class MainActivity extends FragmentActivity implements TabListener {
         } catch (Exception e) {
             Log.e(TAG, "Cannot read file " + localFileUri);
             showMessage(getString(R.string.error_drive_read));
-        }
-    }
-
-    private TuneBook parseXmlChordGridString(final String xml) {
-        Log.d(TAG, "Parsing an XML definition");
-        try {
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            XmlPullParser xpp = factory.newPullParser();
-            xpp.setInput(new StringReader(xml));
-            xpp.next();
-            return new TuneBook(xpp);
-        } catch (Exception ex) {
-            Log.e(TAG, "Cannot parse basic tune book XML file", ex);
-            return null;
         }
     }
 
@@ -429,18 +422,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
         try {
             Log.d(TAG, "Looking for a local tunebook file: " + tunebookFileName);
             FileInputStream inputStream = openFileInput(tunebookFileName);
-            if (tunebookFileName.endsWith(".xml")) {
-                XmlPullParserFactory factory = XmlPullParserFactory
-                        .newInstance();
-                XmlPullParser parser = factory.newPullParser();
-                String xmlString = StorageUtil
-                        .convertStreamToString(inputStream);
-                parser.setInput(new StringReader(xmlString));
-                parser.next();
-                return new TuneBook(parser);
-            } else {
-                return new TuneBook(StorageUtil.convertStreamToString(inputStream));
-            }
+            return new TuneBook(StorageUtil.convertStreamToString(inputStream), this);
         } catch (FileNotFoundException e) {
             Log.i(TAG, String.format("File %s not found, use resource instead",
                     tunebookFileName));
@@ -453,7 +435,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
                 tunebookFileName));
         String testText = StorageUtil.convertStreamToString(getResources()
                 .openRawResource(R.raw.tunebook1));
-        return new TuneBook(testText);
+        return new TuneBook(testText, this);
     }
 
     /**
@@ -461,6 +443,24 @@ public class MainActivity extends FragmentActivity implements TabListener {
      * Actions
      * ************************************************************************
      */
+
+    private void onAddTune() {
+        Log.d(TAG, "Selected action is onAddTune");
+
+        TuneDialogFragment dialog = TuneDialogFragment.newInstance();
+        dialog.setResultHandler(new TuneDialogFragment.TuneDialogResultHandler() {
+            @Override
+            public void onTuneDialogOk(TuneDialogFragment dialogFragment) {
+
+            }
+
+            @Override
+            public void onTuneDialogCancel(TuneDialogFragment dialogFragment) {
+
+            }
+        });
+        dialog.show(getFragmentManager(), getString(R.string.tune));
+    }
 
     private void onAddSet() {
         Log.d(TAG, "Selected action is onAddSet");

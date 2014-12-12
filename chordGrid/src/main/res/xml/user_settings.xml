@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Settings">
+    <PreferenceCategory android:title="@string/settings_category_definitions">
+        <!-- <Preference
+             android:title="@string/settings_rhythms"
+             android:summary="@string/settings_rhythms_summary"-->
+        <PreferenceScreen
+            android:key="settings_rhythms"
+            android:title="@string/settings_rhythms"
+            android:summary="@string/settings_rhythms_summary">
+            <Preference
+                android:key="rhythm_add"
+                android:title="@string/settings_rhythm_add"
+                android:summary="@string/settings_rhythm_add_summary"
+                android:icon="@drawable/ic_action_new"
+                android:persistent="false" />
+            <Preference
+                android:key="rhythm_discard"
+                android:title="@string/settings_rhythm_discard"
+                android:summary="@string/settings_rhythm_discard_summary"
+                android:icon="@drawable/ic_action_discard"
+                android:persistent="false" />
+            <PreferenceCategory
+                android:key="rhythms_list"
+                android:title="@string/settings_rhythms" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_category_display">
         <SwitchPreference
             android:defaultValue="false"
             android:summary="@string/settings_paged_tuneset_summary"
