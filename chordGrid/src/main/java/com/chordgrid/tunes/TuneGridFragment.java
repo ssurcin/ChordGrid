@@ -13,6 +13,8 @@ import com.chordgrid.model.TuneSet;
 
 public class TuneGridFragment extends Fragment {
 
+    public static final String TAG = "TuneGridFragment";
+
     /**
      * The key to retrieve a Tune in a bundle.
      */
@@ -34,17 +36,24 @@ public class TuneGridFragment extends Fragment {
     private TuneSet tuneset;
 
     /**
+     * This flag is raised if we are in edition mode, and false in display mode.
+     */
+    private Boolean mEditMode;
+
+    /**
      * Gets a new instance of {@code TuneGridFragment} initialized with data in
      * a bundle.
      *
      * @param tune    The tune to be displayed.
      * @param tuneset The set in which this tune is displayed.
+     * @param editMode A flag raised if we are editing the tune.
      * @return A new initialized instance of {@code TuneGridFragment}.
      */
-    public static TuneGridFragment newInstance(Tune tune, TuneSet tuneset) {
+    public static TuneGridFragment newInstance(Tune tune, TuneSet tuneset, boolean editMode) {
         TuneGridFragment fragment = new TuneGridFragment();
 
         Bundle args = new Bundle();
+        args.putBoolean(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, editMode);
         args.putParcelable(BUNDLE_KEY_TUNE, tune);
         if (tuneset != null)
             args.putParcelable(BUNDLE_KEY_TUNESET, tuneset);
@@ -70,6 +79,12 @@ public class TuneGridFragment extends Fragment {
             tuneset = (TuneSet) getArguments()
                     .getParcelable(BUNDLE_KEY_TUNESET);
         return tuneset;
+    }
+
+    public boolean getEditMode() {
+        if (mEditMode == null)
+            mEditMode = getArguments().getBoolean(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, false);
+        return mEditMode.booleanValue();
     }
 
     @Override

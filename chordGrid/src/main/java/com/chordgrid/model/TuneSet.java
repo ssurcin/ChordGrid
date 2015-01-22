@@ -101,6 +101,10 @@ public class TuneSet extends TunebookItem implements Parcelable {
                 }
             }
         }
+        if (TextUtils.isEmpty(name) || "null".equalsIgnoreCase(name)) {
+            name = generateSetName();
+            Log.d(TAG, "Generating set name " + name);
+        }
     }
 
     public TuneSet(TuneBook tuneBook, XmlPullParser parser)
@@ -230,6 +234,19 @@ public class TuneSet extends TunebookItem implements Parcelable {
             }
         }
         return r;
+    }
+
+    /**
+     * Generates an automatic set name from the tunes indexes.
+     *
+     * @return A string.
+     */
+    private String generateSetName() {
+        String[] tuneIndexes = new String[tunes.size()];
+        for (int i = 0; i < tunes.size(); i++) {
+            tuneIndexes[i] = tunes.get(i).getId();
+        }
+        return TextUtils.join("_", tuneIndexes);
     }
 
     /**

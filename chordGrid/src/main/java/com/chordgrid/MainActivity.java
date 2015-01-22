@@ -5,8 +5,10 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.ActionBar.TabListener;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,14 +25,18 @@ import com.chordgrid.model.Tune;
 import com.chordgrid.model.TuneBook;
 import com.chordgrid.model.TuneSet;
 import com.chordgrid.settings.UserSettingsActivity;
+import com.chordgrid.tunes.DisplayTuneGridActivity;
 import com.chordgrid.tunes.ExpandableTunesListFragment;
-import com.chordgrid.tunes.TuneDialogFragment;
+import com.chordgrid.tunes.TuneMetadataDialogFragment;
 import com.chordgrid.tunesets.TuneSetAdapter;
+import com.chordgrid.util.FileUtils;
 import com.chordgrid.util.StorageUtil;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -264,6 +270,11 @@ public class MainActivity extends FragmentActivity implements TabListener {
                 startActivity(new Intent(getApplicationContext(), UserSettingsActivity.class));
                 break;
 
+            case R.id.action_save:
+                Log.d(TAG, "Action SAVE");
+                onSave();
+                break;
+
             case R.id.action_discard:
                 Log.d(TAG, "Action DISCARD");
                 onDiscard();
@@ -447,16 +458,18 @@ public class MainActivity extends FragmentActivity implements TabListener {
     private void onAddTune() {
         Log.d(TAG, "Selected action is onAddTune");
 
-        TuneDialogFragment dialog = TuneDialogFragment.newInstance();
-        dialog.setResultHandler(new TuneDialogFragment.TuneDialogResultHandler() {
+        TuneMetadataDialogFragment dialog = TuneMetadataDialogFragment.newInstance();
+        dialog.setResultHandler(new TuneMetadataDialogFragment.TuneDialogResultHandler() {
             @Override
-            public void onTuneDialogOk(TuneDialogFragment dialogFragment) {
-
+            public void onTuneDialogOk(TuneMetadataDialogFragment dialogFragment) {
+                Log.d(TAG, "Start editing the tune");
+                Tune newTune = new Tune(dialogFragment.getTuneTitle(), dialogFragment.getRhythm(), dialogFragment.getKey());
+                displayTuneGrid(newTune);
             }
 
             @Override
-            public void onTuneDialogCancel(TuneDialogFragment dialogFragment) {
-
+            public void onTuneDialogCancel(TuneMetadataDialogFragment dialogFragment) {
+                Log.d(TAG, "Cancelled Tune edition dialog");
             }
         });
         dialog.show(getFragmentManager(), getString(R.string.tune));
@@ -478,6 +491,62 @@ public class MainActivity extends FragmentActivity implements TabListener {
         EditableExpandableListFragment fragment = (EditableExpandableListFragment) adapter
                 .getItem(currentTabIndex);
         fragment.enterDiscardMode();
+    }
+
+    private void onSave() {
+        Log.d(TAG, "Selected action is onSave");
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                this);
+
+        final MainActivity currentContext = this;
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setTitle(R.string.email_send_tunebook_dialog_title)
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //send email to admin with dialog box values
+                        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                        emailIntent.setType("text/plain");
+                        //emailIntent.setType("message/rfc822");
+
+                        //set up the recipient address
+                        //emailActivity.putExtra(Intent.EXTRA_EMAIL, new String[] { to });
+
+                        //set up the email subject
+                        emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.tunebook));
+
+                        //you can specify cc addresses as well
+                        // email.putExtra(Intent.EXTRA_CC, new String[]{ ...});
+                        // email.putExtra(Intent.EXTRA_BCC, new String[]{ ... });
+
+                        //set up the message body
+                        emailIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_send_tunebook_message));
+
+                        File file = getFileStreamPath(tunebookFileName);
+                        if (!file.exists() || !file.canRead()) {
+                            Toast.makeText(currentContext, R.string.email_attachment_error, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        File tempFile = new File(getExternalCacheDir(), tunebookFileName);
+                        try {
+                            FileUtils.copy(file, tempFile);
+                        } catch (IOException e) {
+                            Log.e(TAG, "Cannot copy tunebook file to " + tempFile);
+                            Log.e(TAG, e.getMessage());
+                            return;
+                        }
+
+                        Uri uri = Uri.fromFile(tempFile);
+                        emailIntent.putExtra(Intent.EXTRA_STREAM, uri);
+
+                        startActivity(Intent.createChooser(emailIntent, getString(R.string.email_select_provider)));
+                    }
+                });
+
+        alertDialogBuilder.create().show();
     }
 
     private void onMerge() {
@@ -505,5 +574,28 @@ public class MainActivity extends FragmentActivity implements TabListener {
             }
         });
         myTunebook.mergeAsync(this, tunebook);
+    }
+
+    /**
+     * Starts a DisplayTuneGridActivity over the current activity for a given tune.
+     *
+     * @param tune A tune to display.
+     */
+    public void displayTuneGrid(Tune tune) {
+        Intent intent = new Intent(this, DisplayTuneGridActivity.class);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE, tune);
+        startActivity(intent);
+    }
+
+    /**
+     * tarts a DisplayTuneGridActivity over the current activity for edition of a given tune.
+     *
+     * @param tune A tune to edit.
+     */
+    public void displayTuneGridEdit(Tune tune) {
+        Intent intent = new Intent(this, DisplayTuneGridActivity.class);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE, tune);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, true);
+        startActivity(intent);
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
 
@@ -273,6 +274,13 @@ public class TuneBook extends Observable implements Parcelable, Observer {
      * @param tuneset The new tuneset.
      */
     public void add(TuneSet tuneset) {
+        String setName = tuneset.getName();
+        for (TuneSet set : tuneSets) {
+            if (TextUtils.equals(set.getName(), setName)) {
+                Log.w(TAG, "Set with name " + setName + " already exists! Skip add");
+                return;
+            }
+        }
         tuneSets.add(tuneset);
 
         // Observe this tune set

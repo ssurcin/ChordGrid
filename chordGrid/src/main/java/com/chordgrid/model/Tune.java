@@ -62,6 +62,12 @@ public class Tune extends TunebookItem implements Parcelable {
     public Tune() {
     }
 
+    public Tune(String name, Rhythm rhythm, String key) {
+        this.name = name;
+        mRhythm = rhythm;
+        this.key = key;
+    }
+
     public Tune(String name, Rhythm rhythm, String key, String chordGrid) {
         this.name = name;
         mRhythm = rhythm;

@@ -20,6 +20,11 @@
     <item
         android:id="@+id/action_discard"
         android:icon="@drawable/ic_action_discard"
+        android:title="@string/save"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_action_save"
         android:title="@string/discard"
         android:showAsAction="ifRoom" />
     <item

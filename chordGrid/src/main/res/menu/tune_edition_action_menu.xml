@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_add_part"
+        android:icon="@drawable/ic_action_part"
+        android:title="@string/edit_tune_add_part"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_add_line"
+        android:icon="@drawable/ic_action_new"
+        android:title="@string/edit_tune_add_line"
+        android:showAsAction="ifRoom" />
+</menu>

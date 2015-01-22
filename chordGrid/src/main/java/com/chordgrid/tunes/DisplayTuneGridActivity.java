@@ -2,6 +2,7 @@ package com.chordgrid.tunes;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -22,14 +23,24 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
     public static final String BUNDLE_KEY_TUNESET = "tuneset";
 
     /**
+     * The key to retrieve the edit flag in a bundle.
+     */
+    public static final String BUNDLE_KEY_EDIT = "edit";
+
+    /**
      * The displayed tune.
      */
-    private Tune tune;
+    private Tune mTune;
 
     /**
      * The set in which the tune is displayed (may be null).
      */
-    private TuneSet tuneset;
+    private TuneSet mTuneset;
+
+    /**
+     * This flag is raised if we are in edition mode, and false in display mode.
+     */
+    private boolean mEditMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +49,51 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            tune = (Tune) extras.getParcelable(BUNDLE_KEY_TUNE);
-            tuneset = (TuneSet) extras.getParcelable(BUNDLE_KEY_TUNESET);
-            setTitle(tune.getTitle());
+            mTune = extras.getParcelable(BUNDLE_KEY_TUNE);
+            mTuneset = extras.getParcelable(BUNDLE_KEY_TUNESET);
+            mEditMode = extras.getBoolean(BUNDLE_KEY_EDIT, false);
+            setTitle(mTune.getTitle());
         }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, TuneGridFragment.newInstance(tune, tuneset)).commit();
+                    .add(R.id.container, TuneGridFragment.newInstance(mTune, mTuneset, mEditMode)).commit();
+            if (mEditMode)
+                startActionMode(mEditTuneActionModeCallback);
         }
     }
+
+    /**
+     * The ActionMode callback handling contextual commands for tune edition.
+     */
+    private final ActionMode.Callback mEditTuneActionModeCallback = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            getMenuInflater().inflate(R.menu.tune_edition_action_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_add_part:
+                    return true;
+                case R.id.action_add_line:
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

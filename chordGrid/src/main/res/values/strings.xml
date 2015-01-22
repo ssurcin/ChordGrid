@@ -52,6 +52,7 @@
     <string name="select_rhythm">Select Rhythm</string>
     <string name="nothing">Nothing</string>
     <string name="merge">Merge</string>
+    <string name="save">Save</string>
     <string name="merging_tunebook">Merging Tune Book</string>
     <string name="merging_tunebook_tune_fmt">Merged %1$d/%2$d tunes (%3$d%%)…</string>
     <string name="merging_tunebook_set_fmt">Merged %1$d/%2$d sets (%3$d%%)…</string>
@@ -61,4 +62,11 @@
     <string name="reorder_tunes">Reorder tunes</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tune">Tune</string>
+    <string name="tunebook">Tunebook</string>
+    <string name="edit_tune_add_part">Add part</string>
+    <string name="edit_tune_add_line">Add line</string>
+    <string name="email_send_tunebook_dialog_title">Share your tunebook.</string>
+    <string name="email_send_tunebook_message">Here is your tunebook...</string>
+    <string name="email_attachment_error">Attachment Error</string>
+    <string name="email_select_provider">Select your Email Provider :</string>
 </resources>
