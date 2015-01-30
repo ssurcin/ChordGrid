@@ -11,7 +11,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -20,24 +23,28 @@ import com.chordgrid.model.Measure;
 import com.chordgrid.model.Tune;
 import com.chordgrid.model.TunePart;
 
+import java.util.HashMap;
 import java.util.List;
+
+import static android.view.GestureDetector.SimpleOnGestureListener;
 
 public class TuneGrid extends View {
 
+    private static final String TAG = "TuneGrid";
     private static final float REPEAT_BORDER_GAP = 2.0f;
     private static final int REPEAT_PADDING = 10;
     private static final float REPEAT_DOT_RADIUS = 5.0f;
+    /**
+     * The usual number of measures per line.
+     */
+    private static final int USUAL_MEASURES_PER_LINE = 8;
+    private int maxMeasuresPerLine = USUAL_MEASURES_PER_LINE;
     private static Paint paintBorder = new Paint();
     private static Paint paintWhiteFill = new Paint();
     private static Paint paintLabel = new Paint();
     private static Paint paintLabelFill = new Paint();
     private static Typeface tfLabel = Typeface.DEFAULT_BOLD;
     private static Paint paintChord = new Paint();
-
-    /**
-     * The usual number of measures per line.
-     */
-    private static final int USUAL_MEASURES_PER_LINE = 8;
 
     static {
         paintBorder.setColor(Color.BLACK);
@@ -57,19 +64,60 @@ public class TuneGrid extends View {
         paintChord.setTextAlign(Align.CENTER);
     }
 
+    private final int MIN_TEXT_SIZE = 12;
+    private final HashMap<Rect, TunePart> mPartLabelAreas = new HashMap<Rect, TunePart>();
+    private final HashMap<Rect, ContextLine> mLineAreas = new HashMap<Rect, ContextLine>();
+    private final HashMap<Rect, ContextMeasure> mMeasureAreas = new HashMap<Rect, ContextMeasure>();
     /**
      * The displayed tune.
      */
     private Tune tune;
     private int viewWidth;
     private int viewHeight;
-    private int maxMeasuresPerLine = USUAL_MEASURES_PER_LINE;
     private int measureWidth;
     private float chordUsableMeasureWidth;
     private int labelAreaWidth;
     private float labelTextSize;
     private Point measureOrigin = new Point();
     private Rect textBounds = new Rect();
+    private OnSelectMeasureHandler mSelectMeasureHandler;
+    private OnSelectPartHandler mSelectPartHandler;
+    /**
+     * A gesture detector to handle presses and gestures over the screen.
+     * In particular here we handle long presses to select a tune's components.
+     */
+    private final GestureDetector mGestureDetector = new GestureDetector(getContext(), new SimpleOnGestureListener() {
+        @Override
+        public void onLongPress(MotionEvent e) {
+            TunePart part = isOnPartLabel(e);
+            if (part != null) {
+                Log.d(TAG, String.format("Long press on part label %s", part.getLabel()));
+                if (mSelectPartHandler != null)
+                    mSelectPartHandler.selectPart(part.getLabel());
+                return;
+            }
+
+            ContextMeasure contextMeasure = isOnMeasureBox(e);
+            if (contextMeasure != null) {
+                Log.d(TAG, String.format("Long press on measure box '%s'", contextMeasure.measure));
+                if (mSelectMeasureHandler != null) {
+                    Line line = contextMeasure.line;
+                    part = contextMeasure.part;
+                    mSelectMeasureHandler.selectMeasure(part.getLabel(), line.getIndex(part), contextMeasure.measure.getIndexInLine(line));
+                }
+                return;
+            }
+
+            ContextLine contextLine = isOnLineDelimiter(e);
+            if (contextLine != null) {
+                Log.d(TAG, String.format("Long press on line delimiter %s", contextLine.line));
+                return;
+            }
+
+            super.onLongPress(e);
+        }
+    }
+    );
 
     public TuneGrid(Context context) {
         super(context);
@@ -79,6 +127,35 @@ public class TuneGrid extends View {
         super(context, attrs);
     }
 
+    private Point getRelativePosition(View v, MotionEvent event) {
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        float screenX = event.getRawX();
+        float screenY = event.getRawY();
+        float viewX = screenX - location[0];
+        float viewY = screenY - location[1];
+        return new Point((int) viewX, (int) viewY);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mGestureDetector.onTouchEvent(event);
+    }
+
+    private void clearAreaMaps() {
+        mPartLabelAreas.clear();
+        mLineAreas.clear();
+        mMeasureAreas.clear();
+    }
+
+    public void setOnSelectMeasureHandler(OnSelectMeasureHandler onSelectMeasureHandler) {
+        mSelectMeasureHandler = onSelectMeasureHandler;
+    }
+
+    public void setOnSelectPartHandler(OnSelectPartHandler onSelectPartHandler) {
+        mSelectPartHandler = onSelectPartHandler;
+    }
+    
     public Tune getTune() {
         return tune;
     }
@@ -150,9 +227,13 @@ public class TuneGrid extends View {
             measureOrigin.set(getPaddingLeft() + labelAreaWidth,
                     getPaddingTop());
 
+            clearAreaMaps();
+
             for (TunePart part : tune.getParts()) {
-                drawPartLabel(canvas, part.getLabel());
+                drawPartLabel(canvas, part);
                 for (Line line : part.getLines()) {
+                    float lineX = measureOrigin.x, lineY = measureOrigin.y;
+
                     List<Measure> measures = line.getMeasures();
                     int countMeasures = measures.size();
                     boolean hasRepetition = line.hasRepetition();
@@ -164,10 +245,13 @@ public class TuneGrid extends View {
                             measureStyle = MeasureStyle.REPEAT_RIGHT;
                         else
                             measureStyle = MeasureStyle.NORMAL;
-                        drawMeasure(canvas, measures.get(i), measureStyle);
+                        drawMeasure(canvas, measures.get(i), measureStyle, line, part);
                     }
                     measureOrigin.x = getPaddingLeft() + labelAreaWidth;
                     measureOrigin.y += measureWidth;
+
+                    // Remember this line's area in relative coordinates
+                    mLineAreas.put(new Rect((int) lineX, (int) lineY, (int) (lineX + measureWidth), (int) (lineY + measureWidth)), new ContextLine(part, line));
                 }
             }
         }
@@ -175,7 +259,21 @@ public class TuneGrid extends View {
         super.onDraw(canvas);
     }
 
-    private void drawPartLabel(Canvas canvas, String label) {
+    private ContextLine isOnLineDelimiter(MotionEvent e) {
+        Point p = getRelativePosition(this, e);
+        for (Rect rect : mLineAreas.keySet()) {
+            if (rect.contains(p.x, p.y)) {
+                if (p.x >= rect.left && p.x < rect.left + 2)
+                    return mLineAreas.get(rect);
+                if (p.x <= rect.right && p.x > rect.right - 2)
+                    return mLineAreas.get(rect);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private void drawPartLabel(Canvas canvas, TunePart tunePart) {
         paintLabelFill.setColor(Color.rgb(0xd3, 0xfa, 0x66));
         float radius = labelAreaWidth / 2 - 2;
         float xCenter = getPaddingLeft() + radius + 2;
@@ -184,13 +282,24 @@ public class TuneGrid extends View {
         canvas.drawCircle(xCenter, yCenter, radius, paintLabel);
         float x1 = xCenter - radius, y1 = yCenter - radius;
         float x2 = xCenter + radius, y2 = yCenter + radius;
-        drawCenteredText(canvas, label, x1, y1, x2, y2, paintLabel);
+        drawCenteredText(canvas, tunePart.getLabel(), x1, y1, x2, y2, paintLabel);
+
+        // Remember which area is devoted to this part's label (in relative coordinates)
+        mPartLabelAreas.put(new Rect((int) x1, (int) y1, (int) x2, (int) y2), tunePart);
     }
 
-    private void drawMeasure(Canvas canvas, Measure measure,
-                             MeasureStyle measureStyle) {
+    private TunePart isOnPartLabel(MotionEvent e) {
+        Point p = getRelativePosition(this, e);
+        for (Rect rect : mPartLabelAreas.keySet()) {
+            if (rect.contains(p.x, p.y))
+                return mPartLabelAreas.get(rect);
+        }
+        return null;
+    }
 
-        drawMeasureBox(canvas, measureStyle);
+    private void drawMeasure(Canvas canvas, Measure measure, MeasureStyle measureStyle, Line line, TunePart part) {
+
+        drawMeasureBox(canvas, measureStyle, measure, line, part);
 
         switch (measure.countChords()) {
             case 1:
@@ -208,7 +317,7 @@ public class TuneGrid extends View {
         measureOrigin.x += measureWidth;
     }
 
-    private void drawMeasureBox(Canvas canvas, MeasureStyle measureStyle) {
+    private void drawMeasureBox(Canvas canvas, MeasureStyle measureStyle, Measure measure, Line line, TunePart part) {
         float x1 = measureOrigin.x;
         float y1 = measureOrigin.y;
         float x2 = x1 + measureWidth;
@@ -266,6 +375,18 @@ public class TuneGrid extends View {
                 canvas.drawLine(x1, y2, x1, y1, paintBorder);
                 break;
         }
+
+        // Remember the measure box's relative coordinates
+        mMeasureAreas.put(new Rect((int) x1 - 2, (int) y1 + 2, (int) x2 - 2, (int) y2 - 2), new ContextMeasure(part, line, measure));
+    }
+
+    private ContextMeasure isOnMeasureBox(MotionEvent e) {
+        Point p = getRelativePosition(this, e);
+        for (Rect rect : mMeasureAreas.keySet()) {
+            if (rect.contains(p.x, p.y))
+                return mMeasureAreas.get(rect);
+        }
+        return null;
     }
 
     private void drawCenteredText(Canvas canvas, String text, float x, float y,
@@ -298,8 +419,6 @@ public class TuneGrid extends View {
         String chord = measure.getChords().get(0).getValue();
         drawCenteredText(canvas, chord, getUsableChordRect(), paintChord);
     }
-
-    private final int MIN_TEXT_SIZE = 12;
 
     private float getSuitableTextSizeChord2(Measure measure) {
         String largestChord = measure.getLargestChordText();
@@ -407,5 +526,35 @@ public class TuneGrid extends View {
 
     private enum MeasureStyle {
         NORMAL, REPEAT_LEFT, REPEAT_RIGHT
+    }
+
+    public interface OnSelectPartHandler {
+        void selectPart(String partLabel);
+    }
+
+    public interface OnSelectMeasureHandler {
+        void selectMeasure(String partLabel, int lineIndex, int measureIndex);
+    }
+
+    private class ContextLine {
+        public TunePart part;
+        public Line line;
+
+        public ContextLine(TunePart part, Line line) {
+            this.part = part;
+            this.line = line;
+        }
+    }
+
+    private class ContextMeasure {
+        public TunePart part;
+        public Line line;
+        public Measure measure;
+
+        public ContextMeasure(TunePart part, Line line, Measure measure) {
+            this.part = part;
+            this.line = line;
+            this.measure = measure;
+        }
     }
 }

@@ -464,7 +464,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
             public void onTuneDialogOk(TuneMetadataDialogFragment dialogFragment) {
                 Log.d(TAG, "Start editing the tune");
                 Tune newTune = new Tune(dialogFragment.getTuneTitle(), dialogFragment.getRhythm(), dialogFragment.getKey());
-                displayTuneGrid(newTune);
+                displayTuneGridEdit(newTune, dialogFragment.getBarsPerLine());
             }
 
             @Override
@@ -588,7 +588,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
     }
 
     /**
-     * tarts a DisplayTuneGridActivity over the current activity for edition of a given tune.
+     * Starts a DisplayTuneGridActivity over the current activity for edition of a given tune.
      *
      * @param tune A tune to edit.
      */
@@ -596,6 +596,20 @@ public class MainActivity extends FragmentActivity implements TabListener {
         Intent intent = new Intent(this, DisplayTuneGridActivity.class);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE, tune);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, true);
+        startActivity(intent);
+    }
+
+    /**
+     * Starts a DisplayTuneGridActivity over the current activity for edition of a given tune.
+     *
+     * @param tune        A tune to edit.
+     * @param barsPerLine The default number of bars per line.
+     */
+    public void displayTuneGridEdit(Tune tune, int barsPerLine) {
+        Intent intent = new Intent(this, DisplayTuneGridActivity.class);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE, tune);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, true);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_BARSPERLINE, barsPerLine);
         startActivity(intent);
     }
 }

@@ -21,148 +21,9 @@ import java.util.List;
 public class Measure implements Parcelable {
 
     /**
-     * Tag for LogCat console debugging.
-     */
-    private static final String TAG = "Measure";
-
-    private List<Chord> chords = new ArrayList<Chord>();
-
-    /**
-     * Empty constructor for Parcelable construction.
-     */
-    public Measure() {
-    }
-
-    /**
-     * Counts the chords in this measure.
-     */
-    public int countChords() {
-        return chords.size();
-    }
-
-    /**
-     * Getter for the list of chords.
-     */
-    public List<Chord> getChords() {
-        return chords;
-    }
-
-    /**************************************************************************
-     * XML parsing
-     *************************************************************************/
-
-    /**
      * The XML tag expected for a measure.
      */
     public static final String XML_TAG = "Measure";
-
-    /**
-     * Reads a new instance of Measure from an XML parser.
-     */
-    public Measure(XmlPullParser parser) throws XmlPullParserException,
-            IOException {
-        Log.v(TAG, "Parsing an XML tag " + parser.getName());
-        parser.require(XmlPullParser.START_TAG, "", XML_TAG);
-
-        while (parser.nextTag() == XmlPullParser.START_TAG) {
-            if (Chord.XML_TAG.equalsIgnoreCase(parser.getName())) {
-                chords.add(new Chord(parser));
-            }
-        }
-
-        // Get rid of closing tag
-        parser.require(XmlPullParser.END_TAG, "", XML_TAG);
-    }
-
-    /**
-     * ***********************************************************************
-     * Serialization
-     * ***********************************************************************
-     */
-
-    public void xmlSerialize(XmlSerializer xmlSerializer) throws IllegalArgumentException, IllegalStateException, IOException {
-        xmlSerializer.startTag("", XML_TAG);
-        for (Chord chord : chords) {
-            chord.xmlSerialize(xmlSerializer);
-        }
-        xmlSerializer.endTag("", XML_TAG);
-    }
-
-    /**
-     * ***********************************************************************
-     * Text parsing
-     * ***********************************************************************
-     */
-
-    public Measure(String text) {
-        text = text.trim();
-        String[] items = text.split("\\s+");
-        for (String item : items) {
-            chords.add(new Chord(item));
-        }
-    }
-
-    @Override
-    public String toString() {
-        return TextUtils.join(" ", chords);
-    }
-
-    /**
-     * ***********************************************************************
-     * Properties
-     * ***********************************************************************
-     */
-
-    public String getLargestChordText() {
-        if (chords.size() == 0)
-            return "";
-        String largest = chords.get(0).getValue();
-        for (int i = 1; i < chords.size(); i++) {
-            String chord = chords.get(i).getValue();
-            if (chord.length() > largest.length())
-                largest = chord;
-        }
-        return largest;
-    }
-
-    /**************************************************************************
-     * Parcelable implementation
-     *************************************************************************/
-
-    /**
-     * Constructor from an Android parcel of data.
-     *
-     * @param source A source parcel of data.
-     */
-    public Measure(Parcel source) {
-        readFromParcel(source);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    /**
-     * Writes the measure's contents into a parcel of data.
-     *
-     * @param dest  The destination parcel of data.
-     * @param flags Optional flags.
-     */
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeTypedList(chords);
-    }
-
-    /**
-     * Reads the measure's contents from a parcel of data.
-     *
-     * @param source The source parcel of data.
-     */
-    public void readFromParcel(Parcel source) {
-        source.readTypedList(chords, Chord.CREATOR);
-    }
-
     /**
      * Required to create new instances of Chord (single and arrays).
      */
@@ -187,4 +48,161 @@ public class Measure implements Parcelable {
             return new Measure(source);
         }
     };
+    /**
+     * Tag for LogCat console debugging.
+     */
+    private static final String TAG = "Measure";
+    private List<Chord> mChords = new ArrayList<Chord>();
+
+    /**
+     * Empty constructor for Parcelable construction.
+     */
+    public Measure() {
+    }
+
+    /**
+     * Reads a new instance of Measure from an XML parser.
+     */
+    public Measure(XmlPullParser parser) throws XmlPullParserException,
+            IOException {
+        Log.v(TAG, "Parsing an XML tag " + parser.getName());
+        parser.require(XmlPullParser.START_TAG, "", XML_TAG);
+
+        while (parser.nextTag() == XmlPullParser.START_TAG) {
+            if (Chord.XML_TAG.equalsIgnoreCase(parser.getName())) {
+                mChords.add(new Chord(parser));
+            }
+        }
+
+        // Get rid of closing tag
+        parser.require(XmlPullParser.END_TAG, "", XML_TAG);
+    }
+
+    /**
+     * ***********************************************************************
+     * Text parsing
+     * ***********************************************************************
+     */
+
+    public Measure(String text) {
+
+        text = text.trim();
+        String[] items = text.split("\\s+");
+        for (String item : items) {
+            mChords.add(new Chord(item));
+        }
+    }
+
+    /**************************************************************************
+     * XML parsing
+     *************************************************************************/
+
+    /**
+     * Constructor from an Android parcel of data.
+     *
+     * @param source A source parcel of data.
+     */
+    public Measure(Parcel source) {
+        readFromParcel(source);
+    }
+
+    /**
+     * Counts the chords in this measure.
+     */
+    public int countChords() {
+        return mChords.size();
+    }
+
+    /**
+     * Getter for the list of chords.
+     */
+    public List<Chord> getChords() {
+        return mChords;
+    }
+
+    public void setChords(List<String> chords) {
+        mChords = new ArrayList<Chord>();
+        for (String chord : chords) {
+            mChords.add(new Chord(chord));
+        }
+    }
+
+    public Chord getChord(int index) {
+        return mChords.get(index);
+    }
+
+    /**
+     * ***********************************************************************
+     * Serialization
+     * ***********************************************************************
+     */
+
+    public void xmlSerialize(XmlSerializer xmlSerializer) throws IllegalArgumentException, IllegalStateException, IOException {
+        xmlSerializer.startTag("", XML_TAG);
+        for (Chord chord : mChords) {
+            chord.xmlSerialize(xmlSerializer);
+        }
+        xmlSerializer.endTag("", XML_TAG);
+    }
+
+    @Override
+    public String toString() {
+        return TextUtils.join(" ", mChords);
+    }
+
+    /**************************************************************************
+     * Parcelable implementation
+     *************************************************************************/
+
+    /**
+     * ***********************************************************************
+     * Properties
+     * ***********************************************************************
+     */
+
+    public String getLargestChordText() {
+        if (mChords.size() == 0)
+            return "";
+        String largest = mChords.get(0).getValue();
+        for (int i = 1; i < mChords.size(); i++) {
+            String chord = mChords.get(i).getValue();
+            if (chord.length() > largest.length())
+                largest = chord;
+        }
+        return largest;
+    }
+
+    public int getIndexInLine(Line line) {
+        for (int i = 0; i < line.getMeasures().size(); i++) {
+            Measure m = line.getMeasure(i);
+            if (m.equals(this))
+                return i;
+        }
+        return -1;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Writes the measure's contents into a parcel of data.
+     *
+     * @param dest  The destination parcel of data.
+     * @param flags Optional flags.
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(mChords);
+    }
+
+    /**
+     * Reads the measure's contents from a parcel of data.
+     *
+     * @param source The source parcel of data.
+     */
+    public void readFromParcel(Parcel source) {
+        source.readTypedList(mChords, Chord.CREATOR);
+    }
 }

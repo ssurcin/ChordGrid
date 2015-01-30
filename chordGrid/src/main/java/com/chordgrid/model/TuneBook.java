@@ -183,8 +183,11 @@ public class TuneBook extends Observable implements Parcelable, Observer {
 
     public List<Rhythm> getAllTuneSetRythms() {
         TreeSet<Rhythm> rhythms = new TreeSet<Rhythm>();
-        for (TuneSet tuneSet : tuneSets)
-            rhythms.add(tuneSet.getRhythm());
+        for (TuneSet tuneSet : tuneSets) {
+            Rhythm rhythm = tuneSet.getRhythm();
+            if (rhythm != null)
+                rhythms.add(rhythm);
+        }
         ArrayList<Rhythm> list = new ArrayList<Rhythm>(rhythms);
         Collections.sort(list, new Comparator<Rhythm>() {
 

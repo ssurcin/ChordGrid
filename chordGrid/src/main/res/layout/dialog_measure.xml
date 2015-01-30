@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textViewChord1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/chord1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" />
+
+    <EditText
+        android:id="@+id/editTextChord1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/textViewChord1"
+        android:layout_marginLeft="10dp"
+        android:ems="6"
+        android:inputType="textCapWords"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/chord2"
+        android:id="@+id/textViewChord2"
+        android:layout_below="@id/textViewChord1"
+        android:layout_alignBaseline="@+id/editTextChord2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" />
+
+    <EditText
+        android:id="@+id/editTextChord2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/textViewChord2"
+        android:layout_below="@id/editTextChord1"
+        android:layout_marginLeft="10dp"
+        android:ems="6"
+        android:inputType="textCapWords"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <CheckBox
+        android:id="@+id/checkBoxChord2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/use_2nd_chord"
+        android:layout_toRightOf="@+id/editTextChord2"
+        android:layout_toEndOf="@+id/editTextChord1"
+        android:layout_below="@id/editTextChord1"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/chord3"
+        android:id="@+id/textViewChord3"
+        android:layout_below="@id/textViewChord2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBaseline="@+id/editTextChord3"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" />
+
+    <EditText
+        android:id="@+id/editTextChord3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/textViewChord3"
+        android:layout_below="@id/editTextChord2"
+        android:layout_alignBaseline="@id/editTextChord3"
+        android:layout_marginLeft="10dp"
+        android:ems="6"
+        android:inputType="textCapWords"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/use_3rd_chord"
+        android:id="@+id/checkBoxChord3"
+        android:layout_toRightOf="@+id/editTextChord3"
+        android:layout_toEndOf="@+id/editTextChord3"
+        android:layout_below="@id/editTextChord2"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/chord4"
+        android:id="@+id/textViewChord4"
+        android:layout_below="@id/textViewChord3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBaseline="@+id/editTextChord4"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp" />
+
+    <EditText
+        android:id="@+id/editTextChord4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/textViewChord4"
+        android:layout_below="@id/editTextChord3"
+        android:layout_alignBaseline="@id/editTextChord4"
+        android:layout_marginLeft="10dp"
+        android:ems="6"
+        android:inputType="textCapWords"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/use_4th_chord"
+        android:id="@+id/checkBoxChord4"
+        android:layout_toRightOf="@+id/editTextChord4"
+        android:layout_toEndOf="@+id/editTextChord4"
+        android:layout_below="@id/editTextChord3"
+        android:textAppearance="@android:style/TextAppearance.Large" />
+
+</RelativeLayout>

@@ -91,7 +91,7 @@ public class DisplayTuneSetActivity extends ActionBarActivity {
                 text.setTextSize(22.0f);
                 text.setTypeface(Typeface.DEFAULT_BOLD);
                 text.setTextColor(getResources().getColor(R.color.tune_title_in_tuneset));
-                text.setText(String.format("%d. %s (%s)", i + 1, tune.getTitle(), tune.getRhythm().getName()));
+                text.setText(String.format("%d. %s (%s - %s)", i + 1, tune.getTitle(), tune.getRhythm().getName(), tune.getKey()));
                 container.addView(text);
 
                 TuneGrid grid = new TuneGrid(getApplicationContext());

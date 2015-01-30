@@ -65,7 +65,7 @@ public class SelectRhythmDialogFragment extends DialogFragment {
             }
         }
 
-        View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_select_rhythm_dialog, null);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_select_rhythm, null);
 
         final SelectRhythmDialogFragment fragment = this;
 

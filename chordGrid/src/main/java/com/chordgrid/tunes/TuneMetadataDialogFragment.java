@@ -125,7 +125,7 @@ public class TuneMetadataDialogFragment extends DialogFragment {
             mRhythm = tune.getRhythm();
         }
 
-        View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_tune_dialog, null);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_tune, null);
 
         final TuneMetadataDialogFragment fragment = this;
 

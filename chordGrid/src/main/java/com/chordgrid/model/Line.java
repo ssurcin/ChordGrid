@@ -58,8 +58,8 @@ public class Line implements Parcelable {
      * Tag for LogCat console debugging.
      */
     private static final String TAG = "com.chordgrid.model.Line";
-    private boolean repetition;
-    private List<Measure> measures = new ArrayList<Measure>();
+    private boolean mRepetition;
+    private List<Measure> mMeasures = new ArrayList<Measure>();
 
     /**************************************************************************
      * XML parsing
@@ -83,7 +83,7 @@ public class Line implements Parcelable {
         while (parser.nextTag() == XmlPullParser.START_TAG) {
             String name = parser.getName();
             if (Measure.XML_TAG.equalsIgnoreCase(name)) {
-                measures.add(new Measure(parser));
+                mMeasures.add(new Measure(parser));
             }
         }
 
@@ -103,7 +103,7 @@ public class Line implements Parcelable {
             text = TextUtils.substring(text, endLabel + 1, text.length()).trim();
 
         if (text.startsWith("|:")) {
-            repetition = true;
+            mRepetition = true;
             text = text.substring(2);
             int endRepeat = text.lastIndexOf(":|");
             if (endRepeat > -1)
@@ -114,7 +114,7 @@ public class Line implements Parcelable {
 
         String[] items = text.split(":?\\|");
         for (String item : items) {
-            measures.add(new Measure(item));
+            mMeasures.add(new Measure(item));
         }
     }
 
@@ -122,6 +122,12 @@ public class Line implements Parcelable {
      * Empty constructor for Parcelable construction.
      */
     public Line() {
+    }
+
+    public Line(int barsPerLine) {
+        for (int i = 0; i < barsPerLine; i++) {
+            mMeasures.add(new Measure());
+        }
     }
 
     /**
@@ -132,15 +138,28 @@ public class Line implements Parcelable {
     }
 
     public boolean hasRepetition() {
-        return repetition;
+        return mRepetition;
     }
 
     public int countMeasures() {
-        return measures.size();
+        return mMeasures.size();
     }
 
     public List<Measure> getMeasures() {
-        return measures;
+        return mMeasures;
+    }
+
+    public Measure getMeasure(int index) {
+        return mMeasures.get(index);
+    }
+
+    public int getIndex(TunePart part) {
+        for (int i = 0; i < part.getLines().size(); i++) {
+            Line l = part.getLine(i);
+            if (l.equals(this))
+                return i;
+        }
+        return -1;
     }
 
     /**************************************************************************
@@ -157,7 +176,7 @@ public class Line implements Parcelable {
         Log.d(MainActivity.TAG, String.format("parse Tune attribute %s=\"%s\"",
                 attrName, attrValue));
         if (XML_ATTR_REPEAT.equalsIgnoreCase(attrName)) {
-            repetition = (!TextUtils.isEmpty(attrValue) && !"no"
+            mRepetition = (!TextUtils.isEmpty(attrValue) && !"no"
                     .equalsIgnoreCase(attrValue));
         }
     }
@@ -171,7 +190,7 @@ public class Line implements Parcelable {
     public void xmlSerialize(XmlSerializer xmlSerializer) throws IllegalArgumentException, IllegalStateException, IOException {
         xmlSerializer.startTag("", XML_TAG);
         xmlSerializer.attribute("", XML_ATTR_REPEAT, hasRepetition() ? "yes" : "no");
-        for (Measure measure : measures) {
+        for (Measure measure : mMeasures) {
             measure.xmlSerialize(xmlSerializer);
         }
         xmlSerializer.endTag("", XML_TAG);
@@ -181,9 +200,9 @@ public class Line implements Parcelable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(hasRepetition() ? "|: " : "| ");
-        int count = measures.size();
+        int count = mMeasures.size();
         for (int i = 0; i < count; i++) {
-            sb.append(measures.get(i).toString()).append(" ");
+            sb.append(mMeasures.get(i).toString()).append(" ");
             if (i == count - 1 && hasRepetition())
                 sb.append(":|");
             else
@@ -205,8 +224,8 @@ public class Line implements Parcelable {
      */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (repetition ? 1 : 0));
-        dest.writeTypedList(measures);
+        dest.writeByte((byte) (mRepetition ? 1 : 0));
+        dest.writeTypedList(mMeasures);
     }
 
     /**
@@ -215,7 +234,7 @@ public class Line implements Parcelable {
      * @param source The source parcel of data.
      */
     public void readFromParcel(Parcel source) {
-        repetition = source.readByte() != 0;
-        source.readTypedList(measures, Measure.CREATOR);
+        mRepetition = source.readByte() != 0;
+        source.readTypedList(mMeasures, Measure.CREATOR);
     }
 }

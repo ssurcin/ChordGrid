@@ -117,6 +117,12 @@ public class TunePart implements Parcelable {
         Log.d(TAG, String.format("Added %d lines to this part", mLines.size()));
     }
 
+    public TunePart(Tune tune, int barsPerLine) {
+        mLabel = nextLabel();
+        mLines.add(new Line(barsPerLine));
+        Log.d(TAG, String.format("Added a new line of %d bars for tune %s", barsPerLine, tune.getTitle()));
+    }
+
     /**
      * ***********************************************************************
      * Parcelable implementation
@@ -156,6 +162,10 @@ public class TunePart implements Parcelable {
         return mLabel;
     }
 
+    public void setLabel(String label) {
+        mLabel = label;
+    }
+
     public String getChordGrid() {
         return mChordGrid;
     }
@@ -165,6 +175,10 @@ public class TunePart implements Parcelable {
      */
     public List<Line> getLines() {
         return mLines;
+    }
+
+    public Line getLine(int index) {
+        return mLines.get(index);
     }
 
     /**

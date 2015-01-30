@@ -1,80 +1,59 @@
-X:1
-T:Little Diamond
-R:Polka
-K:D
-|: D | D | D | A | D | D | A | D :|
-|: D | Bm | D | A | D | Bm | A | D :|
+X:7
+I:leckan_mor
+T:Leckan Mor
+R:Jig
+K:Bm
+A) |: Bm | Bm | A | A | Em | Em | F#m | F#m :|
+B) | Bm | Bm | A | A | Em | Em | F#m | F#m | 
+| Bm | Bm | A | A | Em | Em | G A | D A | 
 
-X:2
-T:Murroe Polka
-R:Polka
-K:G
-|: G | G  | D  | D  | G | G  | D  | G  :|
-|: G | G | D | D | G | G | D | D :|
+X:6
+I:up_in_the_garret
+T:Up in the Garret
+R:Slip Jig
+K:Ador
+A) |: Am | Am | Am | Am :|
+B) |: Em | Em F#m G | Em | G :|
 
-X:3
-T:Maids of Ardath
-R:Polka
-K:D
-|: D | D | A | D   | D | D | A | D   :|
-|: A | A | E | E A | A | A | E | E A :|
+X:5
+I:kalyana
+T:Kalyana
+R:Jig
+K:Bm
+A) |: D9 | D9 | D9 | D9 | D9 | D9 | D9 | D9 :|
+B) |: D9 | D9 D | D A | A D | A | D | G | G :|
 
 X:4
+I:tarbolton
 T:Tarbolton
 R:Reel
 K:Edor
-|: Em | Em | D | G D | Em | D Em | G D | Em :|
-|: Em | Em | D | G D | Em D | Em | G D | Em :|
+A) |: E- | E- | D | G D | E- | D E- | G D | E- :|
+B) |: E- | E- | D | G D | E- D | E- | G D | E- :|
 
-X:5
-T:Lads of Laois
-R:Reel
-K:Em
-|: Em   | D | Em | D    | Em A  | D  | Em   | D  Em :|
-|: Em A | D | Em | D Em | Em GD | Em | C  D | Bm    :|
-
-X:6
-T:Ornette's Trip to Belfast
-R:Reel
+X:3
+I:maids_of_ardath
+T:Maids of Ardath
+R:Polka
 K:D
-|: Bm   | A | D   | D  | Bm   | A    | D | D   :|
-|: D  G | D | A D | D  | Bm G | D Bm | D | A D :|
+A) |: D | D | A | D | D | D | A | D :|
+B) |: A | A | E | E A | A | A | E | E A :|
 
-X:7
-T:Dick's Gossip
-R:Reel
+X:2
+I:murroe_polka
+T:Murroe Polka
+R:Polka
+K:G
+A) |: G | G | D | D | G | G | D | G :|
+B) |: G | G | D | D | G | G | D | D :|
+
+X:1
+I:little_diamond
+T:Little Diamond
+R:Polka
 K:D
-|: D | D | A | A | D | D | A | D A D :|
-|: G | G | A | A | G | G | A | D A D :|
+A) |: D | D | D | A | D | D | A | D :|
+B) |: D | B- | D | A | D | B- | A | D :|
 
-X:8
-T:Pernod Waltz
-R:Waltz
-K:Bm
-|: Bm | Bm | Bm7 | Em G | A  | A  | F#m | G   :|
-|  Em | Em | A   | Bm   | Em | Bm | A   | G    |
-|  Em | Em | A   | Bm   | Em | Bm | A   | Bm   ||
-
-X:9
-T:Kas Ha Barh 1
-R:Kas Ha Barh
-K:Bm
-|: Bm   | A Bm | Bm   | A Bm  | Bm G | A Bm | Bm G | A Bm  :|
-|: Bm G | A Bm | Bm G | Em Bm | Bm G | A Bm | Bm G | Em Bm :|
-
-X:10
-T:Kas Ha Barh 2
-R:Kas Ha Barh
-K:Bm
-|: Bm A | Bm G  | Bm A | G Bm | Bm A | Bm G  | Bm A | G Bm :|
-|: Bm G | Bm Em | Bm G | A Bm | Bm G | Bm Em | Bm G | A Bm :|
-
-SET:Petites polkas
-1 2 3
-
-SET:Tarbolton
-4 5 6 7
-
-SET:Kas Ha Barh
-9 10
-
+SET:kalyana_up_in_the_garret_leckan_mor
+kalyana up_in_the_garret leckan_mor

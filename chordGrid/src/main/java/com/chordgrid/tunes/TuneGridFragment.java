@@ -1,15 +1,22 @@
 package com.chordgrid.tunes;
 
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.chordgrid.R;
+import com.chordgrid.model.Measure;
 import com.chordgrid.model.Tune;
 import com.chordgrid.model.TuneSet;
+
+import java.util.List;
 
 public class TuneGridFragment extends Fragment {
 
@@ -39,6 +46,8 @@ public class TuneGridFragment extends Fragment {
      * This flag is raised if we are in edition mode, and false in display mode.
      */
     private Boolean mEditMode;
+
+    private TuneGrid mTuneGrid;
 
     /**
      * Gets a new instance of {@code TuneGridFragment} initialized with data in
@@ -76,7 +85,7 @@ public class TuneGridFragment extends Fragment {
      */
     public TuneSet getTuneSet() {
         if (tuneset == null)
-            tuneset = (TuneSet) getArguments()
+            tuneset = getArguments()
                     .getParcelable(BUNDLE_KEY_TUNESET);
         return tuneset;
     }
@@ -106,8 +115,12 @@ public class TuneGridFragment extends Fragment {
         setKey(tune.getKey());
         setTuneIndex();
 
-        TuneGrid grid = (TuneGrid) getView().findViewById(R.id.viewGrid);
-        grid.setTune(tune);
+        mTuneGrid = (TuneGrid) getView().findViewById(R.id.viewGrid);
+        mTuneGrid.setTune(tune);
+        mTuneGrid.setOnSelectMeasureHandler(mOnSelectMeasureHandler);
+        mTuneGrid.setOnSelectPartHandler(mOnSelectPartHandler);
+
+        registerForContextMenu(mTuneGrid);
     }
 
     /**
@@ -152,5 +165,64 @@ public class TuneGridFragment extends Fragment {
                     tuneset.getTuneIndex(tune) + 1, tuneset.size()));
         } else
             indexTextView.setText("");
+    }
+
+    private final TuneGrid.OnSelectMeasureHandler mOnSelectMeasureHandler = new TuneGrid.OnSelectMeasureHandler() {
+        @Override
+        public void selectMeasure(String partLabel, int lineIndex, int measureIndex) {
+            final Tune tune = getTune();
+            final Measure measure = tune.getMeasure(partLabel, lineIndex, measureIndex);
+            Log.d(TAG, String.format("Long press on measure box '%s'", measure));
+            MeasureDialogFragment dialog = MeasureDialogFragment.newInstance(measure);
+            dialog.setResultHandler(new MeasureDialogFragment.MeasureDialogResultHandler() {
+                @Override
+                public void onTuneDialogOk(MeasureDialogFragment dialogFragment) {
+                    Log.d(TAG, "Complete measure edition dialog");
+                    List<String> chords = dialogFragment.getChords();
+                    measure.setChords(chords);
+                    Log.d(TAG, "Tune is now " + tune.toString());
+                }
+
+                @Override
+                public void onTuneDialogCancel(MeasureDialogFragment dialogFragment) {
+                    Log.d(TAG, "Cancelled measure edition dialog");
+                }
+            });
+            FragmentManager fm = getActivity().getFragmentManager();
+            dialog.show(fm, getString(R.string.edit_measure));
+        }
+    };
+
+    private String mSelectedPartLabel;
+
+    private final TuneGrid.OnSelectPartHandler mOnSelectPartHandler = new TuneGrid.OnSelectPartHandler() {
+        @Override
+        public void selectPart(String partLabel) {
+            mSelectedPartLabel = partLabel;
+            getActivity().openContextMenu(mTuneGrid);
+        }
+    };
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getActivity().getMenuInflater().inflate(R.menu.part_edition_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.part_edit_label:
+                Log.d(TAG, "Edit part label");
+                ((DisplayTuneGridActivity) getActivity()).onEditPartLabel(mSelectedPartLabel);
+                return true;
+            case R.id.part_delete_part:
+                Log.d(TAG, "Delete part");
+                return true;
+            case R.id.part_add_line:
+                Log.d(TAG, "Add line to part");
+                return true;
+        }
+        return super.onContextItemSelected(item);
     }
 }

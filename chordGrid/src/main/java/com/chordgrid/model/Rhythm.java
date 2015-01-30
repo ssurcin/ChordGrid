@@ -4,10 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+import android.util.Log;
 
+import com.chordgrid.R;
 import com.chordgrid.util.StaticObserver;
+import com.chordgrid.util.StorageUtil;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,12 +23,10 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
      * The shared preference name for custom preferences.
      */
     public static final String PREFS_NAME_CUSTOM = "CustomPrefs";
-
     /**
      * The shared preference key for rhythms.
      */
     public static final String PREFS_KEY_RHYTHMS = "Rhythms";
-
     /**
      * A factory to create Rhythm instances and instance arrays from a parcel.
      */
@@ -38,6 +41,7 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
             return new Rhythm[size];
         }
     };
+    private static final String TAG = "Rhythm";
     /**
      * The set of static observers.
      */
@@ -87,7 +91,17 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
      */
     public static Set<Rhythm> getKnownRhythms(Context context) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME_CUSTOM, Context.MODE_PRIVATE);
-        String serializedRhythms = sharedPreferences.getString(PREFS_KEY_RHYTHMS, "[]");
+        String serializedRhythms = sharedPreferences.getString(PREFS_KEY_RHYTHMS, "");
+        if (TextUtils.isEmpty(serializedRhythms)) {
+            Log.d(TAG, "Defaulting rhythms");
+            try {
+                serializedRhythms = StorageUtil.convertStreamToString(context.getResources()
+                        .openRawResource(R.raw.default_rhythms));
+            } catch (IOException e) {
+                Log.e(TAG, "Cannot load default rhythms: " + e.getMessage());
+                serializedRhythms = "[]";
+            }
+        }
         return new Gson().fromJson(serializedRhythms, Rhythm.RhythmSet.class);
     }
 

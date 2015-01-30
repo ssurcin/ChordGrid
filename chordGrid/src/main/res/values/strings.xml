@@ -69,4 +69,12 @@
     <string name="email_send_tunebook_message">Here is your tunebook...</string>
     <string name="email_attachment_error">Attachment Error</string>
     <string name="email_select_provider">Select your Email Provider :</string>
+    <string name="chord1">Chord #1:</string>
+    <string name="chord2">Chord #2:</string>
+    <string name="chord3">Chord #3:</string>
+    <string name="chord4">Chord #4:</string>
+    <string name="edit_measure">Edit Measure</string>
+    <string name="use_2nd_chord">Use 2nd chord</string>
+    <string name="use_3rd_chord">Use 3rd chord</string>
+    <string name="use_4th_chord">Use 4th chord</string>
 </resources>
