@@ -1,23 +1,18 @@
 package com.chordgrid.settings;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.util.Log;
 
 import com.chordgrid.R;
 import com.chordgrid.model.Rhythm;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * This class is the controller for the user settings activity.
@@ -67,7 +62,7 @@ public class UserSettingsActivity extends Activity implements RhythmDialogFragme
 
             UserSettingsActivity activity = (UserSettingsActivity) getActivity();
 
-            Preference addRhythmButton = (Preference) findPreference(RHYTHM_ADD_KEY);
+            Preference addRhythmButton = findPreference(RHYTHM_ADD_KEY);
             addRhythmButton.setOnPreferenceClickListener(new OnRhythmPreferenceClickListener(activity));
 
             mRhythmsListCategory = (PreferenceCategory) findPreference(RHYTHM_LIST_KEY);
@@ -79,7 +74,7 @@ public class UserSettingsActivity extends Activity implements RhythmDialogFragme
         private void updateRhythmListPreference() {
             UserSettingsActivity activity = (UserSettingsActivity) getActivity();
 
-            TreeSet<Rhythm> knownRhythms = activity.deserializeCustomPreferences();
+            Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms();
             ArrayList<String> rhythmNames = new ArrayList<String>(knownRhythms.size());
 
             for (Rhythm rhythm : knownRhythms) {
@@ -130,7 +125,7 @@ public class UserSettingsActivity extends Activity implements RhythmDialogFragme
     }
 
     public void OnRhythmDialogOk(RhythmDialogFragment rhythmDialogFragment) {
-        TreeSet<Rhythm> rhythms = deserializeCustomPreferences();
+        Set<Rhythm> rhythms = Rhythm.getKnownRhythms();
         if (!rhythmDialogFragment.isNewRhythm()) {
             Iterator<Rhythm> iterator = rhythms.iterator();
             while (iterator.hasNext()) {
@@ -142,43 +137,12 @@ public class UserSettingsActivity extends Activity implements RhythmDialogFragme
             }
         }
         rhythms.add(rhythmDialogFragment.getRhythm());
-        serializeCustomPreferences(rhythms);
+        Rhythm.saveKnownRhythms(rhythms, getApplicationContext());
+        mUserSettingsFragment.updateRhythmListPreference();
     }
 
     public void OnRhythmDialogCancel(RhythmDialogFragment rhythmDialogFragment) {
 
     }
 
-    /**
-     * Serializes custom preferences in the application's data.
-     */
-    private void serializeCustomPreferences(Set<Rhythm> rhythms) {
-        Log.d(TAG, "Serializing custom preferences");
-
-        SharedPreferences sharedPreferences = getSharedPreferences(Rhythm.PREFS_NAME_CUSTOM, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        String serializedRhythms = new Gson().toJson(rhythms);
-        editor.putString(Rhythm.PREFS_KEY_RHYTHMS, serializedRhythms);
-
-        editor.commit();
-    }
-
-    /**
-     * Deserializes custom preferences from the application's data.
-     */
-    private TreeSet<Rhythm> deserializeCustomPreferences() {
-        Log.d(TAG, "Deserializing custom preferences");
-
-        SharedPreferences sharedPreferences = getSharedPreferences(Rhythm.PREFS_NAME_CUSTOM, Context.MODE_PRIVATE);
-
-        try {
-            String serializedRhythms = sharedPreferences.getString(Rhythm.PREFS_KEY_RHYTHMS, "[]");
-            return new Gson().fromJson(serializedRhythms, Rhythm.RhythmSet.class);
-        } catch (Exception e) {
-            Log.e(TAG, "Cannot deserialize rhythm preferences");
-            Log.e(TAG, e.getMessage());
-            return null;
-        }
-    }
 }

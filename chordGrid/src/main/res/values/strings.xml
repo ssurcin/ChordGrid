@@ -77,4 +77,5 @@
     <string name="use_2nd_chord">Use 2nd chord</string>
     <string name="use_3rd_chord">Use 3rd chord</string>
     <string name="use_4th_chord">Use 4th chord</string>
+    <string name="crash_toast_text">Ooops! ChordGrid has crashed, but a report will be sent to the developer to help fix the issue!</string>
 </resources>

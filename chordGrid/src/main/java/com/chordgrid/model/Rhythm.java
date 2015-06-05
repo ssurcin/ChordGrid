@@ -13,6 +13,8 @@ import com.chordgrid.util.StorageUtil;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,6 +48,13 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
      * The set of static observers.
      */
     private static final HashSet<StaticObserver> OBSERVERS = new HashSet<StaticObserver>();
+
+    /**
+     * A cache to avoid parsing the known rhythms too often.
+     * Just update it each time the preferences are modified.
+     */
+    private static Set<Rhythm> KNOWN_RHYTHMS;
+
     /**
      * The rhythm's name.
      */
@@ -67,6 +76,10 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
      */
     private int mBeatsPerBar;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Construction
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     public Rhythm(String name, String signature, int beatsPerBar) {
         mName = name;
         mSignature = signature;
@@ -83,13 +96,18 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
         readFromParcel(sourceParcel);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Properties
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
-     * Gets the set of known rhythms from the shared preferences.
+     * Initializes the set of known rhythms from the shared preferences.
      *
      * @param context The activity context allowing to access the shared preferences.
-     * @return A set of rhythms.
      */
-    public static Set<Rhythm> getKnownRhythms(Context context) {
+    public static void initializeKnownRhythms(Context context) {
+        Log.d(TAG, "Initializing known rhythms");
+
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME_CUSTOM, Context.MODE_PRIVATE);
         String serializedRhythms = sharedPreferences.getString(PREFS_KEY_RHYTHMS, "");
         if (TextUtils.isEmpty(serializedRhythms)) {
@@ -99,28 +117,93 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
                         .openRawResource(R.raw.default_rhythms));
             } catch (IOException e) {
                 Log.e(TAG, "Cannot load default rhythms: " + e.getMessage());
-                serializedRhythms = "[]";
+                serializedRhythms = "";
             }
         }
-        return new Gson().fromJson(serializedRhythms, Rhythm.RhythmSet.class);
+
+        KNOWN_RHYTHMS = parseLines(serializedRhythms);
+
+        for (Rhythm rhythm : KNOWN_RHYTHMS)
+            Log.d(TAG, "  " + rhythm);
     }
 
-    public static Rhythm parse(String name, Set<Rhythm> knownRhythms) {
-        for (Rhythm rhythm : knownRhythms) {
+    /**
+     * Parses a string containing a collection of serialized Rhythms (one per line).
+     *
+     * @param serializedRhythms The string containing the serizalized Rhythms.
+     * @return An ordered set of Rhythm instances.
+     */
+    public static Set<Rhythm> parseLines(String serializedRhythms) {
+        Set<Rhythm> rhythms = new TreeSet<Rhythm>(new Comparator<Rhythm>() {
+            @Override
+            public int compare(Rhythm lhs, Rhythm rhs) {
+                return lhs.getName().compareTo(rhs.getName());
+            }
+        });
+
+        String[] lines = serializedRhythms.split("\\s*\\n");
+        for (String line : lines) {
+            try {
+                rhythms.add(Rhythm.parse(line));
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Cannot parse serialized rhythm: " + e.getMessage());
+            }
+        }
+
+        return rhythms;
+    }
+
+    /**
+     * Gets the set of known rhythms from the shared preferences.
+     */
+    public static Set<Rhythm> getKnownRhythms() {
+        return KNOWN_RHYTHMS;
+    }
+
+    public static Rhythm getKnownRhythm(String name) {
+        for (Rhythm rhythm : getKnownRhythms()) {
             if (rhythm.getName().equalsIgnoreCase(name))
                 return rhythm;
         }
         throw new IllegalArgumentException("Unknown rhythm " + name);
     }
 
-    /**
-     * Deserializes a Rhythm instance from a JSON string.
-     *
-     * @param jsonString A JSON string.
-     * @return A Rhythm instance.
-     */
-    static public Rhythm jsonDeserialize(String jsonString) {
-        return new Gson().fromJson(jsonString, Rhythm.class);
+    public static void addKnownRhythm(Rhythm rhythm) {
+        KNOWN_RHYTHMS.add(rhythm);
+    }
+
+    public static void addKnownRhythms(Collection<Rhythm> rhythms) {
+        KNOWN_RHYTHMS.addAll(rhythms);
+    }
+
+    public static void saveKnownRhyhms(Context context) {
+        saveKnownRhythms(KNOWN_RHYTHMS, context);
+    }
+
+    public static void saveKnownRhythms(Set<Rhythm> rhythms, Context context) {
+        Log.d(TAG, "Serializing custom preferences");
+
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Rhythm.PREFS_NAME_CUSTOM, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        TreeSet<Rhythm> sortedRhythms = new TreeSet<Rhythm>(new Comparator<Rhythm>() {
+            @Override
+            public int compare(Rhythm lhs, Rhythm rhs) {
+                return lhs.getName().compareTo(rhs.getName());
+            }
+        });
+        sortedRhythms.addAll(rhythms);
+
+        KNOWN_RHYTHMS = sortedRhythms;
+
+        StringBuilder sb = new StringBuilder();
+        for (Rhythm rhythm : sortedRhythms) {
+            sb.append(rhythm.toString()).append("\n");
+        }
+        editor.putString(Rhythm.PREFS_KEY_RHYTHMS, sb.toString());
+        Log.d(TAG, "Rhythms = \n" + sb.toString());
+
+        editor.commit();
     }
 
     private void analyzeSignature() {
@@ -223,5 +306,33 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
     }
 
     public static class RhythmSet extends TreeSet<Rhythm> {
+    }
+
+    @Override
+    public String toString() {
+        return java.lang.String.format("[%s, %s, %d bpb]", getName(), getSignature(), getBeatsPerBar());
+    }
+
+    public static Rhythm parse(String string) throws IllegalArgumentException {
+        if (string == null) throw new IllegalArgumentException("Cannot parse null string!");
+        if (string.isEmpty()) throw new IllegalArgumentException("Cannot parse empty string!");
+        if (string.startsWith("[") && string.endsWith("]")) {
+            String s = string.substring(1, string.length() - 1);
+            String[] items = s.split(",\\s*");
+            if (items.length == 3) {
+                String name = items[0];
+                String signature = items[1];
+                int indexBpb = items[2].indexOf(" bpb");
+                if (indexBpb > 0) {
+                    try {
+                        int bpb = Integer.parseInt(items[2].substring(0, indexBpb));
+                        return new Rhythm(name, signature, bpb);
+                    } catch (NumberFormatException e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException("Ill-formed Rhythm string: " + string);
     }
 }

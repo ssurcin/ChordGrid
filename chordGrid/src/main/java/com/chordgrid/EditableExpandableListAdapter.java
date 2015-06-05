@@ -1,6 +1,7 @@
 package com.chordgrid;
 
 import android.app.Activity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import com.chordgrid.model.TuneBook;
 import com.chordgrid.model.TunebookItem;
 import com.chordgrid.util.ListViewItemPosition;
+import com.chordgrid.util.LogUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,25 +135,29 @@ public abstract class EditableExpandableListAdapter extends
     }
 
     public void addGroup(String groupName, ArrayList<? extends TunebookItem> items) {
-        groupNames.add(groupName);
+        try {
+            groupNames.add(groupName);
 
-        ArrayList<SelectableItem> array = new ArrayList<SelectableItem>();
+            ArrayList<SelectableItem> array = new ArrayList<SelectableItem>();
 
-        int groupIndex = groupNames.size() - 1;
-        int childIndex = 0;
-        for (TunebookItem item : items) {
-            array.add(new SelectableItem(item));
-            ListViewItemPosition itemPosition = new ListViewItemPosition(groupIndex, childIndex++);
-            ArrayList<ListViewItemPosition> positions = mItemPositions.get(item);
-            if (positions == null) {
-                positions = new ArrayList<ListViewItemPosition>();
-                mItemPositions.put(item, positions);
-                item.addObserver(this);
+            int groupIndex = groupNames.size() - 1;
+            int childIndex = 0;
+            for (TunebookItem item : items) {
+                array.add(new SelectableItem(item));
+                ListViewItemPosition itemPosition = new ListViewItemPosition(groupIndex, childIndex++);
+                ArrayList<ListViewItemPosition> positions = mItemPositions.get(item);
+                if (positions == null) {
+                    positions = new ArrayList<ListViewItemPosition>();
+                    mItemPositions.put(item, positions);
+                    item.addObserver(this);
+                }
+                positions.add(itemPosition);
             }
-            positions.add(itemPosition);
-        }
 
-        mGroups.add(array);
+            mGroups.add(array);
+        } catch (Exception e) {
+            Log.e(LogUtils.getTag(), "Cannot add rhythm group " + groupName, e);
+        }
     }
 
     /**

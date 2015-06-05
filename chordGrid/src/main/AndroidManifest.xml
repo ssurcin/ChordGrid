@@ -12,11 +12,14 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:name="ChordGrid"
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.gms.version"
@@ -102,6 +105,7 @@
                 android:value="com.chordgrid.MainActivity" />
         </activity>
 
+        <!--
         <activity
             android:name=".settings.RythmListEditActivity"
             android:label="@string/settings_rhythms">
@@ -110,6 +114,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        -->
     </application>
 
 </manifest>

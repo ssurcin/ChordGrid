@@ -6,8 +6,29 @@
         android:title="@string/edit_tune_add_part"
         android:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_add_line"
-        android:icon="@drawable/ic_action_new"
+        android:id="@+id/action_line"
+        android:icon="@drawable/ic_action_line"
         android:title="@string/edit_tune_add_line"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/action_line_add"
+                android:title="Add line" />
+            <item
+                android:id="@+id/action_line_delete"
+                android:title="Delete line" />
+            <item
+                android:id="@+id/action_line_no_repeat"
+                android:title="No repeat" />
+            <item
+                android:id="@+id/action_line_repeat_start"
+                android:title="Repeat start" />
+            <item
+                android:id="@+id/action_line_repeat_end"
+                android:title="Repeat end" />
+            <item
+                android:id="@+id/action_line_repeat_both"
+                android:title="Repeat both" />
+        </menu>
+    </item>
 </menu>

@@ -1,5 +1,6 @@
 package com.chordgrid.tunes;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -13,7 +14,7 @@ import com.chordgrid.model.Tune;
 import com.chordgrid.model.TunePart;
 import com.chordgrid.model.TuneSet;
 
-public class DisplayTuneGridActivity extends ActionBarActivity {
+public class DisplayTuneGridActivity extends ActionBarActivity implements TuneProvider {
 
     /**
      * The key to retrieve a Tune in a bundle.
@@ -27,6 +28,10 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
      * The key to retrieve the edit flag in a bundle.
      */
     public static final String BUNDLE_KEY_EDIT = "edit";
+    /**
+     * The key to retrieve the new flag in a bundle.
+     */
+    public static final String BUNDLE_KEY_NEW = "new";
     /**
      * The key to retrieve the bars per line in a bundle.
      */
@@ -54,7 +59,8 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
                 case R.id.action_add_part:
                     addPart();
                     return true;
-                case R.id.action_add_line:
+                case R.id.action_line_add:
+                    Log.d(TAG, "Menu item action_line_add");
                     return true;
             }
             return false;
@@ -62,7 +68,19 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            Log.d(TAG, "Destroying ActionMode for tune edition");
 
+            // Get edited tune from TuneGridFragment
+            TuneGridFragment tuneGridFragment = (TuneGridFragment) getSupportFragmentManager().findFragmentById(R.id.tunegrid_fragment);
+
+            Intent returnIntent = new Intent();
+            if (mTune != null)
+                returnIntent.putExtra(BUNDLE_KEY_TUNE, mTune);
+            if (mTuneset != null)
+                returnIntent.putExtra(BUNDLE_KEY_TUNESET, mTuneset);
+            returnIntent.putExtra(BUNDLE_KEY_NEW, mNewItem);
+            setResult(RESULT_OK, returnIntent);
+            finish();
         }
     };
     /**
@@ -78,6 +96,10 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
      */
     private boolean mEditMode;
     /**
+     * This flags is raised if we are editing a new item.
+     */
+    private boolean mNewItem;
+    /**
      * The default number of bars per line for a new tune.
      */
     private int mDefaultBarsPerLine;
@@ -92,6 +114,7 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
             mTune = extras.getParcelable(BUNDLE_KEY_TUNE);
             mTuneset = extras.getParcelable(BUNDLE_KEY_TUNESET);
             mEditMode = extras.getBoolean(BUNDLE_KEY_EDIT, false);
+            mNewItem = extras.getBoolean(BUNDLE_KEY_NEW, false);
             mDefaultBarsPerLine = extras.getInt(BUNDLE_KEY_BARSPERLINE, mTune.getMaxMeasuresPerLine());
             if (mDefaultBarsPerLine == 0)
                 mDefaultBarsPerLine = 8;
@@ -128,9 +151,9 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -161,5 +184,13 @@ public class DisplayTuneGridActivity extends ActionBarActivity {
             }
         });
         dialog.show(getFragmentManager(), "Edit Label");
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // TuneProvider interface
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    public Tune getTune() {
+        return mTune;
     }
 }

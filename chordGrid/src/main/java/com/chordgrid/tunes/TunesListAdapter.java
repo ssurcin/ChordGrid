@@ -39,7 +39,15 @@ public class TunesListAdapter extends EditableExpandableListAdapter implements
     @Override
     public void setTuneBook(TuneBook tuneBook) {
         super.setTuneBook(tuneBook);
+        getTuneBook().addObserver(this);
+        updateTunebookContents();
+    }
+
+    private void updateTunebookContents() {
         clear();
+
+        TuneBook tuneBook = getTuneBook();
+
         List<Rhythm> rhythms = tuneBook.getAllTuneRythms();
         if (rhythms.size() == 0) {
             addGroup("Empty", new ArrayList<Tune>());
@@ -48,6 +56,7 @@ public class TunesListAdapter extends EditableExpandableListAdapter implements
                 addGroup(rhythm.getName(), tuneBook.getAllTunesWithRythm(rhythm));
             }
         }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -188,7 +197,13 @@ public class TunesListAdapter extends EditableExpandableListAdapter implements
     @Override
     public void update(Observable observable, Object data) {
         if (observable == getTuneBook()) {
-            Log.d(TAG, "The observed tune book has changed.");
+            if (data instanceof TuneBook.ChangedProperty) {
+                TuneBook.ChangedProperty changedProperty = (TuneBook.ChangedProperty) data;
+                if (changedProperty == TuneBook.ChangedProperty.Tunes) {
+                    Log.d(TAG, "The observed tunebook's tunes have changed");
+                    updateTunebookContents();
+                }
+            }
         }
     }
 }

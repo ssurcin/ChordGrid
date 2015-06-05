@@ -1,1 +1,7 @@
-[{"mSignature":"4/4","mName":"Hornpipe","mDenominator":4,"mNumerator":4,"mBeatsPerBar":4},{"mSignature":"6/8","mName":"Jig","mDenominator":8,"mNumerator":6,"mBeatsPerBar":2},{"mSignature":"3/4","mName":"Mazurka","mDenominator":4,"mNumerator":3,"mBeatsPerBar":3},{"mSignature":"2/4","mName":"Polka","mDenominator":4,"mNumerator":2,"mBeatsPerBar":2},{"mSignature":"4/4","mName":"Reel","mDenominator":4,"mNumerator":4,"mBeatsPerBar":4},{"mSignature":"9/8","mName":"Slip Jig","mDenominator":8,"mNumerator":9,"mBeatsPerBar":3},{"mSignature":"3/4","mName":"Waltz","mDenominator":4,"mNumerator":3,"mBeatsPerBar":3}]
+[Jig, 6/8, 2 bpb]
+[Reel, 4/4, 4 bpb]
+[Polka, 2/4, 2 bpb]
+[Mazurka, 3/4, 3 bpb]
+[Waltz, 3/4, 3 bpb]
+[Slip Jig, 9/8, 3 bpb]
+[Hornpipe, 4/4, 4 bpb]

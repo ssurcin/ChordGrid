@@ -32,20 +32,22 @@ public class TuneGridFragment extends Fragment {
      */
     private static final String BUNDLE_KEY_TUNESET = "tuneset";
 
+    private TuneProvider mTuneProvider;
+
     /**
      * The displayed tune.
      */
-    private Tune tune;
+    private Tune mTune;
 
     /**
      * The set in which the tune is displayed (may be null).
      */
-    private TuneSet tuneset;
+    private TuneSet mTuneSet;
 
     /**
      * This flag is raised if we are in edition mode, and false in display mode.
      */
-    private Boolean mEditMode;
+    private boolean mEditMode;
 
     private TuneGrid mTuneGrid;
 
@@ -53,8 +55,8 @@ public class TuneGridFragment extends Fragment {
      * Gets a new instance of {@code TuneGridFragment} initialized with data in
      * a bundle.
      *
-     * @param tune    The tune to be displayed.
-     * @param tuneset The set in which this tune is displayed.
+     * @param tune     The tune to be displayed.
+     * @param tuneset  The set in which this tune is displayed.
      * @param editMode A flag raised if we are editing the tune.
      * @return A new initialized instance of {@code TuneGridFragment}.
      */
@@ -75,25 +77,18 @@ public class TuneGridFragment extends Fragment {
      * Getter for the displayed tune.
      */
     public Tune getTune() {
-        if (tune == null)
-            tune = (Tune) getArguments().getParcelable(BUNDLE_KEY_TUNE);
-        return tune;
+        return mTune;
     }
 
     /**
      * Getter for the context tune set.
      */
     public TuneSet getTuneSet() {
-        if (tuneset == null)
-            tuneset = getArguments()
-                    .getParcelable(BUNDLE_KEY_TUNESET);
-        return tuneset;
+        return mTuneSet;
     }
 
     public boolean getEditMode() {
-        if (mEditMode == null)
-            mEditMode = getArguments().getBoolean(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, false);
-        return mEditMode.booleanValue();
+        return mEditMode;
     }
 
     @Override
@@ -108,15 +103,16 @@ public class TuneGridFragment extends Fragment {
      */
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        Tune tune = getTune();
+        mTuneProvider = (TuneProvider) getActivity();
+        mTune = mTuneProvider.getTune();
 
-        setTitle(tune.getTitle());
-        setRythm(tune.getRhythm().getName());
-        setKey(tune.getKey());
+        setTitle(mTune.getTitle());
+        setRythm(mTune.getRhythm().getName());
+        setKey(mTune.getKey());
         setTuneIndex();
 
         mTuneGrid = (TuneGrid) getView().findViewById(R.id.viewGrid);
-        mTuneGrid.setTune(tune);
+        mTuneGrid.setTune(mTune);
         mTuneGrid.setOnSelectMeasureHandler(mOnSelectMeasureHandler);
         mTuneGrid.setOnSelectPartHandler(mOnSelectPartHandler);
 

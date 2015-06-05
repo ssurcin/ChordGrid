@@ -118,6 +118,7 @@ public class TunePart implements Parcelable {
     }
 
     public TunePart(Tune tune, int barsPerLine) {
+        mTune = tune;
         mLabel = nextLabel();
         mLines.add(new Line(barsPerLine));
         Log.d(TAG, String.format("Added a new line of %d bars for tune %s", barsPerLine, tune.getTitle()));
@@ -167,7 +168,12 @@ public class TunePart implements Parcelable {
     }
 
     public String getChordGrid() {
-        return mChordGrid;
+        //return mChordGrid;
+        StringBuilder sb = new StringBuilder();
+        for (Line line : mLines) {
+            sb.append(line.toString()).append("\n");
+        }
+        return sb.toString();
     }
 
     /**
@@ -252,7 +258,7 @@ public class TunePart implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         try {
-            dest.writeStringArray(new String[]{mTune.getId(), mLabel, mChordGrid});
+            dest.writeStringArray(new String[]{mTune.getId(), mLabel/*, mChordGrid*/});
             dest.writeTypedList(mLines);
         } catch (Exception e) {
             e.printStackTrace();
@@ -260,10 +266,10 @@ public class TunePart implements Parcelable {
     }
 
     public void readFromParcel(Parcel in) {
-        String[] data = new String[3];
+        String[] data = new String[2];
         in.readStringArray(data);
         mLabel = data[1];
-        mChordGrid = data[2];
+        /*mChordGrid = data[2];*/
         in.readTypedList(mLines, Line.CREATOR);
     }
 

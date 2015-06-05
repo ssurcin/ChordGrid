@@ -45,7 +45,7 @@ public class SelectRhythmDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms(getActivity());
+        Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms();
         mKnownRhythmNames = new String[knownRhythms.size()];
         int i = 0;
         for (Rhythm rhythm : knownRhythms) {

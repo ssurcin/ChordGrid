@@ -34,12 +34,6 @@ import java.util.TreeSet;
 
 public class TuneBook extends Observable implements Parcelable, Observer {
 
-    /**
-     * ***********************************************************************
-     * XML parsing
-     * ***********************************************************************
-     */
-
     public static final Parcelable.Creator<TuneBook> CREATOR = new Creator<TuneBook>() {
 
         @Override
@@ -60,30 +54,27 @@ public class TuneBook extends Observable implements Parcelable, Observer {
     public TuneBook() {
     }
 
-    /**************************************************************************
-     * Text parsing
-     *************************************************************************/
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Construction
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Builds a new instance of TuneBook from a text representation.
      *
-     * @param text    The serialized tune book text.
-     * @param context The activity context (allowing to get access to shared preferences).
+     * @param text The serialized tune book text.
      * @throws Exception
      */
-    public TuneBook(String text, Context context) throws Exception {
+    public TuneBook(String text) throws Exception {
         // Split the text into tunes (the first item will be empty or
         // irrelevant).
         String[] tuneSources = MyTextUtils
-                .splitWithDelimiter(text, "(X:|SET:)");
-
-        Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms(context);
+                .splitWithDelimiter(text, "(X:|SET:|RHYTHMS:)");
 
         for (int i = 1; i < tuneSources.length; i++) {
             String source = tuneSources[i];
             if (source.startsWith("X:")) {
                 try {
-                    Tune tune = new Tune(tuneSources[i], knownRhythms);
+                    Tune tune = new Tune(tuneSources[i]);
                     tunes.put(tune.getId(), tune);
                 } catch (Exception e) {
                     Log.w(TAG, e.getMessage());
@@ -94,6 +85,11 @@ public class TuneBook extends Observable implements Parcelable, Observer {
                     add(set);
                 } catch (Exception e) {
                     Log.w(TAG, e.getMessage());
+                }
+            } else if (source.startsWith("RHYTHM:")) {
+                int newline = source.indexOf("\n");
+                if (newline > 0) {
+                    Rhythm.addKnownRhythms(Rhythm.parseLines(source.substring(newline + 1)));
                 }
             }
         }
@@ -106,6 +102,12 @@ public class TuneBook extends Observable implements Parcelable, Observer {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
+        sb.append("RHYTHMS:\n");
+        for (Rhythm rhythm : getAllTuneRythms()) {
+            sb.append(rhythm).append("\n");
+        }
+        sb.append("\n");
 
         TreeMap<String, Tune> sortedTunes = new TreeMap<String, Tune>(new TuneIndexComparator(tunes));
         sortedTunes.putAll(tunes);
@@ -167,11 +169,9 @@ public class TuneBook extends Observable implements Parcelable, Observer {
         }
     }
 
-    /**
-     * ***********************************************************************
-     * Properties
-     * ***********************************************************************
-     */
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Properties
+    //////////////////////////////////////////////////////////////////////////////////////////////
 
     public int countTunes() {
         return tunes.size();
@@ -252,6 +252,10 @@ public class TuneBook extends Observable implements Parcelable, Observer {
         return null;
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Operations
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
     public void remove(List<? extends TunebookItem> discardedItems) {
         int count = 0;
         for (TunebookItem item : discardedItems) {
@@ -269,6 +273,43 @@ public class TuneBook extends Observable implements Parcelable, Observer {
             setChanged();
             notifyObservers(ChangedProperty.TuneSets);
         }
+    }
+
+    /**
+     * Adds a new tune into the tunes collection.
+     *
+     * @param newTune A new tune.
+     */
+    public void add(Tune newTune) {
+        Log.d(TAG, "Adding a new tune " + newTune.getName());
+
+        tunes.put(newTune.getName(), newTune);
+
+        // Observe this tune
+        newTune.addObserver(this);
+
+        // Notify observers that the tune collection has changed
+        setChanged();
+        notifyObservers(ChangedProperty.Tunes);
+    }
+
+    public void replaceTune(Tune oldTune, Tune newTune) {
+        Log.d(TAG, "Replacing tune " + oldTune.getName());
+
+        String oldName = oldTune.getName();
+        String newName = newTune.getName();
+
+        if (!TextUtils.equals(oldName, newName)) {
+            tunes.remove(oldName);
+        }
+        tunes.put(newName, newTune);
+
+        // Observe this tune
+        newTune.addObserver(this);
+
+        // Notify observers that the tune collection has changed
+        setChanged();
+        notifyObservers(ChangedProperty.Tunes);
     }
 
     /**

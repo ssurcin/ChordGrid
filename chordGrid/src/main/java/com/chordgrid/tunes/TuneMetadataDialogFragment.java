@@ -56,7 +56,7 @@ public class TuneMetadataDialogFragment extends DialogFragment {
     private final View.OnClickListener mOnClickSelectRhythmListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms(getActivity());
+            final Set<Rhythm> knownRhythms = Rhythm.getKnownRhythms();
             SelectRhythmDialogFragment rhythmDialog = SelectRhythmDialogFragment.newInstance(mRhythm);
             rhythmDialog.setResultHandler(new SelectRhythmDialogFragment.SelectRhythmDialogResultHandler() {
                 @Override

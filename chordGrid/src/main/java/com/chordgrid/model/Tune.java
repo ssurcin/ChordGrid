@@ -10,8 +10,6 @@ import org.xmlpull.v1.XmlSerializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,16 +19,7 @@ import abc.parser.PositionableNote;
 
 public class Tune extends TunebookItem implements Parcelable {
 
-    public final static String XML_TAG = "Tune";
-
     public static class TuneBookParcelableCreator implements Creator<Tune> {
-
-        private final TreeSet<Rhythm> mKnownRhythms = new TreeSet<Rhythm>();
-
-        public void setKnownRhythms(Set<Rhythm> rhythms) {
-            mKnownRhythms.clear();
-            mKnownRhythms.addAll(rhythms);
-        }
 
         @Override
         public Tune[] newArray(int size) {
@@ -39,7 +28,7 @@ public class Tune extends TunebookItem implements Parcelable {
 
         @Override
         public Tune createFromParcel(Parcel source) {
-            return new Tune(source, mKnownRhythms);
+            return new Tune(source);
         }
     }
 
@@ -59,8 +48,17 @@ public class Tune extends TunebookItem implements Parcelable {
     private String key;
     private List<TunePart> parts = new ArrayList<TunePart>();
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Construction
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     public Tune() {
     }
+
+    public Tune(Parcel in) {
+        readFromParcel(in);
+    }
+
 
     public Tune(String name, Rhythm rhythm, String key) {
         this.name = name;
@@ -78,11 +76,10 @@ public class Tune extends TunebookItem implements Parcelable {
     /**
      * Builds a new instance of Tune from a text representation.
      *
-     * @param text         The serialized tune text.
-     * @param knownRhythms The set of known rhythms at this point.
+     * @param text The serialized tune text.
      * @throws Exception
      */
-    public Tune(String text, Set<Rhythm> knownRhythms) throws Exception {
+    public Tune(String text) throws Exception {
         String[] lines = text.split("\n");
         if (lines.length < 5) {
             Log.e(TAG, "Not enough lines in Tune text definition!");
@@ -109,7 +106,7 @@ public class Tune extends TunebookItem implements Parcelable {
             } else if ("I:".equalsIgnoreCase(prefix)) {
                 id = lines[currentLine].substring(2).trim();
             } else if ("R:".equalsIgnoreCase(prefix)) {
-                setRhythm(Rhythm.parse(lines[currentLine].substring(2), knownRhythms));
+                setRhythm(Rhythm.getKnownRhythm(lines[currentLine].substring(2)));
                 Log.v(TAG, String.format("Rhythm = %s", getRhythm()));
             } else if ("K:".equalsIgnoreCase(prefix)) {
                 key = lines[currentLine].substring(2);
@@ -173,13 +170,9 @@ public class Tune extends TunebookItem implements Parcelable {
 
     public Tune(final abc.notation.Tune abcTune) {
         this.abcTune = abcTune;
-        abc.notation.Tune.Music music = abcTune.getMusic();
+        //abc.notation.Tune.Music music = abcTune.getMusic();
         Log.d(TAG, getChordString());
     }
-
-    /**************************************************************************
-     * Text parsing
-     *************************************************************************/
 
     /**
      * ***********************************************************************
@@ -187,14 +180,10 @@ public class Tune extends TunebookItem implements Parcelable {
      * ***********************************************************************
      */
 
-    public Tune(Parcel in, Set<Rhythm> knownRhythms) {
-        readFromParcel(in, knownRhythms);
-    }
-
-    public static Tune parseAbcTune(final String abcFragment) {
-        abc.parser.TuneParser tuneParser = new abc.parser.TuneParser();
-        return new Tune(tuneParser.parse(abcFragment));
-    }
+//    public static Tune parseAbcTune(final String abcFragment) {
+//        abc.parser.TuneParser tuneParser = new abc.parser.TuneParser();
+//        return new Tune(tuneParser.parse(abcFragment));
+//    }
 
     public static String generateId(String text) {
         if (TextUtils.isEmpty(text))
@@ -238,14 +227,7 @@ public class Tune extends TunebookItem implements Parcelable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("X:").append(getIndex()).append("\n");
-        sb.append("I:").append(getId()).append("\n");
-        sb.append("T:").append(getName()).append("\n");
-        sb.append("R:").append(getRhythm().getName()).append("\n");
-        sb.append("K:").append(getKey()).append("\n");
-        sb.append(getChordsString());
-        return sb.toString();
+        return "X:" + getIndex() + "\n" + "I:" + getId() + "\n" + "T:" + getName() + "\n" + "R:" + getRhythm().getName() + "\n" + "K:" + getKey() + "\n" + getChordsString();
     }
 
     private String getChordsString() {
@@ -257,6 +239,8 @@ public class Tune extends TunebookItem implements Parcelable {
     }
 
     public String getId() {
+        if (TextUtils.isEmpty(id))
+            id = generateId(getName());
         return id;
     }
 
@@ -438,12 +422,17 @@ public class Tune extends TunebookItem implements Parcelable {
         dest.writeTypedList(parts);
     }
 
-    private void readFromParcel(Parcel in, Set<Rhythm> knownRhythms) {
+    /**
+     * Deserializes a Tune instance from a parcel.
+     *
+     * @param in The input parcel.
+     */
+    private void readFromParcel(Parcel in) {
         String[] data = new String[4];
         in.readStringArray(data);
         id = data[0];
         name = data[1];
-        setRhythm(Rhythm.parse(data[2], knownRhythms));
+        setRhythm(Rhythm.getKnownRhythm(data[2]));
         key = data[3];
         if (parts == null)
             parts = new ArrayList<TunePart>();

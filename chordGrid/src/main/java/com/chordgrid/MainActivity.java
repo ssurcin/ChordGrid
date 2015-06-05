@@ -84,6 +84,11 @@ public class MainActivity extends FragmentActivity implements TabListener {
     private ActionBar actionBar;
 
     /**
+     * Hold a reference on a tune being edited by the DisplayTuneGridActivity.
+     */
+    private Tune mEditedTune;
+
+    /**
      * Shows a toast message.
      */
     public void showMessage(String message) {
@@ -99,7 +104,8 @@ public class MainActivity extends FragmentActivity implements TabListener {
 
         setContentView(R.layout.activity_main);
 
-        Tune.CREATOR.setKnownRhythms(Rhythm.getKnownRhythms(this));
+        // Read the preferences to initialize the Known Rhythms cache
+        Rhythm.initializeKnownRhythms(getApplicationContext());
 
         // Get the action that triggered the intent filter for this Activity
         final Intent intent = getIntent();
@@ -170,6 +176,16 @@ public class MainActivity extends FragmentActivity implements TabListener {
         super.onStart();
     }
 
+    @Override
+    protected void onStop() {
+        Log.d(TAG, "Application stopping");
+
+        Rhythm.saveKnownRhyhms(getApplicationContext());
+        saveTuneBook();
+
+        super.onStop();
+    }
+
     /**
      * Called when the activity becomes visible.
      */
@@ -188,11 +204,18 @@ public class MainActivity extends FragmentActivity implements TabListener {
         if (driveClientManager != null)
             driveClientManager.onActivityPause();
 
+        Rhythm.saveKnownRhyhms(getApplicationContext());
         saveTuneBook();
 
         super.onPause();
     }
 
+    /**
+     * Saves a tunebook to a given file path.
+     *
+     * @param aTunebook The tunebook to save.
+     * @param path      The path where to save it.
+     */
     private void saveTuneBook(TuneBook aTunebook, String path) {
         Log.d(TAG, "Saving tunebook to " + path);
         FileOutputStream fileOutput;
@@ -212,6 +235,12 @@ public class MainActivity extends FragmentActivity implements TabListener {
         saveTuneBook(tunebook, getCurrentTunebookFilename());
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Activity results
+    //////////////////////////////////////////////////////////////////////////////////////////////
+
+    private static final int ACTIVITY_REQUEST_ADD_TUNE = 1000;
+
     /**
      * Handles resolution callbacks.
      */
@@ -222,9 +251,26 @@ public class MainActivity extends FragmentActivity implements TabListener {
         if (driveClientManager != null)
             driveClientManager.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == TuneSetAdapter.ACTIVITY_REQUEST_CODE_REORDER && resultCode == Activity.RESULT_OK) {
-            TuneSet tuneSet = (TuneSet) data.getParcelableExtra("tuneset");
-            adapter.updateTuneSet(tuneSet);
+        switch (requestCode) {
+            case TuneSetAdapter.ACTIVITY_REQUEST_CODE_REORDER:
+                if (resultCode == Activity.RESULT_OK) {
+                    TuneSet tuneSet = data.getParcelableExtra("tuneset");
+                    adapter.updateTuneSet(tuneSet);
+                }
+                break;
+
+            case ACTIVITY_REQUEST_ADD_TUNE:
+                if (resultCode == Activity.RESULT_OK) {
+                    Log.d(TAG, "Tune edition activity returned OK");
+                    Tune tune = data.getParcelableExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE);
+                    if (data.getBooleanExtra(DisplayTuneGridActivity.BUNDLE_KEY_NEW, false)) {
+                        tunebook.add(tune);
+                    } else {
+                        tunebook.replaceTune(mEditedTune, tune);
+                        mEditedTune = null;
+                    }
+                }
+                break;
         }
     }
 
@@ -353,7 +399,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
             if (lastDot >= 0) {
                 String extension = path.substring(lastDot + 1);
                 if ("txt".equalsIgnoreCase(extension))
-                    tunebook = new TuneBook(fileContents, this);
+                    tunebook = new TuneBook(fileContents);
                 else {
                     showMessage(String.format(
                             "Unexpected file extension '.%s'!", extension));
@@ -433,7 +479,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
         try {
             Log.d(TAG, "Looking for a local tunebook file: " + tunebookFileName);
             FileInputStream inputStream = openFileInput(tunebookFileName);
-            return new TuneBook(StorageUtil.convertStreamToString(inputStream), this);
+            return new TuneBook(StorageUtil.convertStreamToString(inputStream));
         } catch (FileNotFoundException e) {
             Log.i(TAG, String.format("File %s not found, use resource instead",
                     tunebookFileName));
@@ -446,7 +492,7 @@ public class MainActivity extends FragmentActivity implements TabListener {
                 tunebookFileName));
         String testText = StorageUtil.convertStreamToString(getResources()
                 .openRawResource(R.raw.tunebook1));
-        return new TuneBook(testText, this);
+        return new TuneBook(testText);
     }
 
     /**
@@ -593,10 +639,11 @@ public class MainActivity extends FragmentActivity implements TabListener {
      * @param tune A tune to edit.
      */
     public void displayTuneGridEdit(Tune tune) {
+        mEditedTune = tune;
         Intent intent = new Intent(this, DisplayTuneGridActivity.class);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE, tune);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, true);
-        startActivity(intent);
+        startActivityForResult(intent, ACTIVITY_REQUEST_ADD_TUNE);
     }
 
     /**
@@ -609,7 +656,8 @@ public class MainActivity extends FragmentActivity implements TabListener {
         Intent intent = new Intent(this, DisplayTuneGridActivity.class);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_TUNE, tune);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_EDIT, true);
+        intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_NEW, true);
         intent.putExtra(DisplayTuneGridActivity.BUNDLE_KEY_BARSPERLINE, barsPerLine);
-        startActivity(intent);
+        startActivityForResult(intent, ACTIVITY_REQUEST_ADD_TUNE);
     }
 }
