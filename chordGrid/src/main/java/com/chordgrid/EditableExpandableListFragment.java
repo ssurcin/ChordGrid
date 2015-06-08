@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.chordgrid.model.TuneBook;
+import com.chordgrid.util.LogUtils;
 
 /**
  * Base class for Tunes / Tune sets expandable list fragments. Provides edition
@@ -142,7 +143,7 @@ public abstract class EditableExpandableListFragment extends ListFragment {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            Log.d(TAG, "Leaving Discard action mode");
+            Log.d(LogUtils.getTag(), "Leaving Discard action mode");
 
             final EditableExpandableListAdapter adapter = getAdapter();
             final TuneBook tunebook = getTuneBook();
@@ -151,17 +152,17 @@ public abstract class EditableExpandableListFragment extends ListFragment {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    getAdapter().setMode(EditableExpandableListAdapter.MODE_NONE);
                     switch (which) {
                         case DialogInterface.BUTTON_POSITIVE:
                             tunebook.remove(adapter.getSelectedItems());
                             break;
 
                         case DialogInterface.BUTTON_NEGATIVE:
-                            Log.d(TAG, "Do not discard");
+                            Log.d(LogUtils.getTag(), "Do not discard");
                             break;
                     }
-                    dialog.dismiss();
-                    getAdapter().setMode(EditableExpandableListAdapter.MODE_NONE);
                 }
             };
 

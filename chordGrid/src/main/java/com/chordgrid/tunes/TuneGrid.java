@@ -22,6 +22,7 @@ import com.chordgrid.model.Line;
 import com.chordgrid.model.Measure;
 import com.chordgrid.model.Tune;
 import com.chordgrid.model.TunePart;
+import com.chordgrid.util.LogUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -99,11 +100,13 @@ public class TuneGrid extends View {
 
             ContextMeasure contextMeasure = isOnMeasureBox(e);
             if (contextMeasure != null) {
-                Log.d(TAG, String.format("Long press on measure box '%s'", contextMeasure.measure));
+                Log.d(TAG, String.format("Long press on measure box '%s'", contextMeasure.getMeasure()));
+
+                Rect measureBox = contextMeasure.getMeasureBox();
+                invalidate(measureBox.left, measureBox.top, measureBox.right, measureBox.bottom);
+
                 if (mSelectMeasureHandler != null) {
-                    Line line = contextMeasure.line;
-                    part = contextMeasure.part;
-                    mSelectMeasureHandler.selectMeasure(part.getLabel(), line.getIndex(part), contextMeasure.measure.getIndexInLine(line));
+                    mSelectMeasureHandler.selectMeasure(contextMeasure.getPartIndex(), contextMeasure.getLineIndex(), contextMeasure.getMeasureIndex());
                 }
                 return;
             }
@@ -155,7 +158,7 @@ public class TuneGrid extends View {
     public void setOnSelectPartHandler(OnSelectPartHandler onSelectPartHandler) {
         mSelectPartHandler = onSelectPartHandler;
     }
-    
+
     public Tune getTune() {
         return tune;
     }
@@ -208,13 +211,16 @@ public class TuneGrid extends View {
         }
 
         setMeasuredDimension(width, height);
+        Log.d(LogUtils.getTag(), String.format("TuneGrid dimensions = %dx%d", width, height));
     }
+
+    private final Rect clipRect = new Rect();
 
     @Override
     protected void onDraw(Canvas canvas) {
         // The width of the area designated for the part labels
         // is 5% of the view width (20dp minimum).
-        int usableWidth = viewWidth - getPaddingLeft() - getPaddingRight();
+        int usableWidth = viewWidth - getPaddingLeft() - getPaddingRight() - 1;
 
         labelAreaWidth = Math.max(20, usableWidth / 20);
         labelTextSize = Math.max(20, labelAreaWidth / 2);
@@ -224,28 +230,37 @@ public class TuneGrid extends View {
         if (tune != null) {
             measureWidth = (usableWidth - labelAreaWidth) / maxMeasuresPerLine;
             chordUsableMeasureWidth = measureWidth - 2 * (REPEAT_PADDING + REPEAT_DOT_RADIUS + 2);
+
+            boolean hasClip = canvas.getClipBounds(clipRect);
+
             measureOrigin.set(getPaddingLeft() + labelAreaWidth,
                     getPaddingTop());
 
             clearAreaMaps();
 
-            for (TunePart part : tune.getParts()) {
+            int countParts = tune.countParts();
+            for (int partIndex = 0; partIndex < countParts; partIndex++) {
+                TunePart part = tune.getPart(partIndex);
                 drawPartLabel(canvas, part);
-                for (Line line : part.getLines()) {
+
+                int countLines = part.countLines();
+                for (int lineIndex = 0; lineIndex < countLines; lineIndex++) {
+                    Line line = part.getLine(lineIndex);
+
                     float lineX = measureOrigin.x, lineY = measureOrigin.y;
 
                     List<Measure> measures = line.getMeasures();
                     int countMeasures = measures.size();
                     boolean hasRepetition = line.hasRepetition();
                     MeasureStyle measureStyle;
-                    for (int i = 0; i < measures.size(); i++) {
+                    for (int i = 0; i < countMeasures; i++) {
                         if (i == 0 && hasRepetition)
                             measureStyle = MeasureStyle.REPEAT_LEFT;
                         else if (i == countMeasures - 1 && hasRepetition)
                             measureStyle = MeasureStyle.REPEAT_RIGHT;
                         else
                             measureStyle = MeasureStyle.NORMAL;
-                        drawMeasure(canvas, measures.get(i), measureStyle, line, part);
+                        drawMeasure(canvas, tune, partIndex, lineIndex, i, measureStyle);
                     }
                     measureOrigin.x = getPaddingLeft() + labelAreaWidth;
                     measureOrigin.y += measureWidth;
@@ -297,10 +312,11 @@ public class TuneGrid extends View {
         return null;
     }
 
-    private void drawMeasure(Canvas canvas, Measure measure, MeasureStyle measureStyle, Line line, TunePart part) {
+    private void drawMeasure(Canvas canvas, Tune tune, int partIndex, int lineIndex, int measureIndex, MeasureStyle measureStyle) {
 
-        drawMeasureBox(canvas, measureStyle, measure, line, part);
+        drawMeasureBox(canvas, tune, partIndex, lineIndex, measureIndex, measureStyle);
 
+        Measure measure = tune.getPart(partIndex).getLine(lineIndex).getMeasure(measureIndex);
         switch (measure.countChords()) {
             case 1:
                 drawChord1(measure, canvas);
@@ -317,7 +333,7 @@ public class TuneGrid extends View {
         measureOrigin.x += measureWidth;
     }
 
-    private void drawMeasureBox(Canvas canvas, MeasureStyle measureStyle, Measure measure, Line line, TunePart part) {
+    private void drawMeasureBox(Canvas canvas, Tune tune, int partIndex, int lineIndex, int measureIndex, MeasureStyle measureStyle) {
         float x1 = measureOrigin.x;
         float y1 = measureOrigin.y;
         float x2 = x1 + measureWidth;
@@ -371,13 +387,16 @@ public class TuneGrid extends View {
                 break;
 
             default:
+                paintBorder.setStyle(Style.STROKE);
+                paintBorder.setStrokeWidth(defaultStrokeWidth);
                 canvas.drawLine(x2, y1, x2, y2, paintBorder);
                 canvas.drawLine(x1, y2, x1, y1, paintBorder);
                 break;
         }
 
         // Remember the measure box's relative coordinates
-        mMeasureAreas.put(new Rect((int) x1 - 2, (int) y1 + 2, (int) x2 - 2, (int) y2 - 2), new ContextMeasure(part, line, measure));
+        Rect measureBox = new Rect((int) x1 + 2, (int) y1 + 2, (int) x2 - 2, (int) y2 - 2);
+        mMeasureAreas.put(measureBox, new ContextMeasure(tune, partIndex, lineIndex, measureIndex, measureBox));
     }
 
     private ContextMeasure isOnMeasureBox(MotionEvent e) {
@@ -533,7 +552,7 @@ public class TuneGrid extends View {
     }
 
     public interface OnSelectMeasureHandler {
-        void selectMeasure(String partLabel, int lineIndex, int measureIndex);
+        void selectMeasure(int partIndex, int lineIndex, int measureIndex);
     }
 
     private class ContextLine {
@@ -547,14 +566,50 @@ public class TuneGrid extends View {
     }
 
     private class ContextMeasure {
-        public TunePart part;
-        public Line line;
-        public Measure measure;
+        private Tune mTune;
+        private int mPartIndex;
+        private int mLineIndex;
+        private int mMeasureIndex;
+        private Rect mMeasureBox;
 
-        public ContextMeasure(TunePart part, Line line, Measure measure) {
-            this.part = part;
-            this.line = line;
-            this.measure = measure;
+        public ContextMeasure(Tune tune, int partIndex, int lineIndex, int measureIndex, Rect measureBox) {
+            mTune = tune;
+            mPartIndex = partIndex;
+            mLineIndex = lineIndex;
+            mMeasureIndex = measureIndex;
+            mMeasureBox = measureBox;
+        }
+
+        public Tune getTune() {
+            return mTune;
+        }
+
+        public int getPartIndex() {
+            return mPartIndex;
+        }
+
+        public int getLineIndex() {
+            return mLineIndex;
+        }
+
+        public int getMeasureIndex() {
+            return mMeasureIndex;
+        }
+
+        public TunePart getPart() {
+            return mTune.getPart(mPartIndex);
+        }
+
+        public Line getLine() {
+            return getPart().getLine(mLineIndex);
+        }
+
+        public Measure getMeasure() {
+            return getLine().getMeasure(mMeasureIndex);
+        }
+
+        public Rect getMeasureBox() {
+            return mMeasureBox;
         }
     }
 }

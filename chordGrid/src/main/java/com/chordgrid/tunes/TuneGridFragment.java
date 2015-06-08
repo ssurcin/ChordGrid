@@ -165,9 +165,9 @@ public class TuneGridFragment extends Fragment {
 
     private final TuneGrid.OnSelectMeasureHandler mOnSelectMeasureHandler = new TuneGrid.OnSelectMeasureHandler() {
         @Override
-        public void selectMeasure(String partLabel, int lineIndex, int measureIndex) {
+        public void selectMeasure(int partIndex, int lineIndex, int measureIndex) {
             final Tune tune = getTune();
-            final Measure measure = tune.getMeasure(partLabel, lineIndex, measureIndex);
+            final Measure measure = tune.getMeasure(partIndex, lineIndex, measureIndex);
             Log.d(TAG, String.format("Long press on measure box '%s'", measure));
             MeasureDialogFragment dialog = MeasureDialogFragment.newInstance(measure);
             dialog.setResultHandler(new MeasureDialogFragment.MeasureDialogResultHandler() {

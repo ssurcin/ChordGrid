@@ -47,6 +47,7 @@ public class Tune extends TunebookItem implements Parcelable {
     private String chordGrid;
     private String key;
     private List<TunePart> parts = new ArrayList<TunePart>();
+    private Character mNextPartLabel = 'A';
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Construction
@@ -122,8 +123,6 @@ public class Tune extends TunebookItem implements Parcelable {
             Log.v(TAG, String.format("Generated id = %s", id));
         }
 
-        TunePart.resetNextLabel();
-
         ArrayList<String> partLines = new ArrayList<String>();
         boolean inRepetition = false, previousLineInRepetition = false;
         while (currentLine < lines.length) {
@@ -174,6 +173,16 @@ public class Tune extends TunebookItem implements Parcelable {
         Log.d(TAG, getChordString());
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Part labels
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    public String getNextPartLabel() {
+        String label = new StringBuilder().append(mNextPartLabel).toString();
+        mNextPartLabel++;
+        return label;
+    }
+
     /**
      * ***********************************************************************
      * Parcelable implementation
@@ -184,7 +193,6 @@ public class Tune extends TunebookItem implements Parcelable {
 //        abc.parser.TuneParser tuneParser = new abc.parser.TuneParser();
 //        return new Tune(tuneParser.parse(abcFragment));
 //    }
-
     public static String generateId(String text) {
         if (TextUtils.isEmpty(text))
             throw new IllegalArgumentException(
@@ -319,6 +327,10 @@ public class Tune extends TunebookItem implements Parcelable {
                 return p;
         }
         return null;
+    }
+
+    public TunePart getPart(int index) {
+        return parts.get(index);
     }
 
     public void addPart(TunePart newPart) {
@@ -502,7 +514,7 @@ public class Tune extends TunebookItem implements Parcelable {
         for (TunePart part : parts) {
             if (part.getLabel().equalsIgnoreCase(partLabel)) {
                 if (lineIndex < part.getLines().size()) {
-                    Line line = part.getLine(index);
+                    Line line = part.getLine(lineIndex);
                     if (measureIndex < line.getMeasures().size()) {
                         return line.getMeasure(measureIndex);
                     }
@@ -511,4 +523,18 @@ public class Tune extends TunebookItem implements Parcelable {
         }
         return null;
     }
+
+    public Measure getMeasure(int partIndex, int lineIndex, int measureIndex) {
+        if (partIndex < parts.size()) {
+            TunePart part = parts.get(partIndex);
+            if (lineIndex < part.getLines().size()) {
+                Line line = part.getLine(lineIndex);
+                if (measureIndex < line.getMeasures().size()) {
+                    return line.getMeasure(measureIndex);
+                }
+            }
+        }
+        return null;
+    }
+
 }

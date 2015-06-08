@@ -54,7 +54,6 @@ public class TunePart implements Parcelable {
      * ***********************************************************************
      */
 
-    private static Character currentLabel = 'A';
     private final List<Line> mLines = new ArrayList<Line>();
     private Tune mTune;
     private String mLabel;
@@ -107,7 +106,7 @@ public class TunePart implements Parcelable {
 
         mLabel = parseLabel(textLines.get(0));
         if (mLabel == null)
-            mLabel = nextLabel();
+            mLabel = tune.getNextPartLabel();
 
         Log.d(TAG, String.format("Reading part %s with %d lines", getLabel(),
                 textLines.size()));
@@ -119,7 +118,7 @@ public class TunePart implements Parcelable {
 
     public TunePart(Tune tune, int barsPerLine) {
         mTune = tune;
-        mLabel = nextLabel();
+        mLabel = tune.getNextPartLabel();
         mLines.add(new Line(barsPerLine));
         Log.d(TAG, String.format("Added a new line of %d bars for tune %s", barsPerLine, tune.getTitle()));
     }
@@ -134,22 +133,16 @@ public class TunePart implements Parcelable {
         readFromParcel(in);
     }
 
-    public static String nextLabel() {
-        String label = new StringBuilder().append(currentLabel).toString();
-        currentLabel++;
-        return label;
-    }
-
-    public static void resetNextLabel() {
-        currentLabel = 'A';
-    }
-
     public static String parseLabel(String firstLine) {
         Matcher m = labelPattern.matcher(firstLine);
         if (m.find())
             return m.group(1);
         return null;
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Properties
+    //////////////////////////////////////////////////////////////////////////////////////////////
 
     public Tune getTune() {
         return mTune;
@@ -185,6 +178,10 @@ public class TunePart implements Parcelable {
 
     public Line getLine(int index) {
         return mLines.get(index);
+    }
+
+    public int countLines() {
+        return mLines.size();
     }
 
     /**

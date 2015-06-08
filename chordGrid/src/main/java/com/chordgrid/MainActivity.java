@@ -30,6 +30,7 @@ import com.chordgrid.tunes.ExpandableTunesListFragment;
 import com.chordgrid.tunes.TuneMetadataDialogFragment;
 import com.chordgrid.tunesets.TuneSetAdapter;
 import com.chordgrid.util.FileUtils;
+import com.chordgrid.util.LogUtils;
 import com.chordgrid.util.StorageUtil;
 
 import java.io.File;
@@ -87,6 +88,9 @@ public class MainActivity extends FragmentActivity implements TabListener {
      * Hold a reference on a tune being edited by the DisplayTuneGridActivity.
      */
     private Tune mEditedTune;
+
+    private static final int ACTIONBAR_TUNELIST_INDEX = 0;
+    private static final int ACTIONBAR_SETLIST_INDEX = 1;
 
     /**
      * Shows a toast message.
@@ -524,11 +528,13 @@ public class MainActivity extends FragmentActivity implements TabListener {
     private void onAddSet() {
         Log.d(TAG, "Selected action is onAddSet");
         int currentTabIndex = actionBar.getSelectedNavigationIndex();
-        if (currentTabIndex == 0) {
-            ExpandableTunesListFragment fragment = (ExpandableTunesListFragment) adapter
-                    .getItem(currentTabIndex);
-            fragment.enterNewSet();
+        if (currentTabIndex != ACTIONBAR_TUNELIST_INDEX) {
+            actionBar.setSelectedNavigationItem(ACTIONBAR_TUNELIST_INDEX);
+            Log.d(LogUtils.getTag(), "Switched to tunes list before adding a set");
         }
+        ExpandableTunesListFragment fragment = (ExpandableTunesListFragment) adapter
+                .getItem(ACTIONBAR_TUNELIST_INDEX);
+        fragment.enterNewSet();
     }
 
     private void onDiscard() {

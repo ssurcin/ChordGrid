@@ -8,9 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.chordgrid.R;
 import com.chordgrid.model.Measure;
@@ -30,7 +29,7 @@ public class MeasureDialogFragment extends DialogFragment {
     private MeasureDialogResultHandler mResultHandler;
     private Measure mMeasure;
     private EditText[] mEditTexts;
-    private CheckBox[] mCheckBoxes;
+    private ImageButton[] mDiscardButtons;
 
     public static MeasureDialogFragment newInstance(Measure measure) {
         MeasureDialogFragment fragment = new MeasureDialogFragment();
@@ -72,18 +71,19 @@ public class MeasureDialogFragment extends DialogFragment {
                 (EditText) view.findViewById(R.id.editTextChord2),
                 (EditText) view.findViewById(R.id.editTextChord3),
                 (EditText) view.findViewById(R.id.editTextChord4)};
-        mCheckBoxes = new CheckBox[]{
-                null,
-                (CheckBox) view.findViewById(R.id.checkBoxChord2),
-                (CheckBox) view.findViewById(R.id.checkBoxChord3),
-                (CheckBox) view.findViewById(R.id.checkBoxChord4)};
-        for (int i = 1; i < 4; i++) {
-            mCheckBoxes[i].setOnCheckedChangeListener(new OnCheckedChordChangeListener(mEditTexts[i]));
+        mDiscardButtons = new ImageButton[]{
+                (ImageButton) view.findViewById(R.id.discardButton1),
+                (ImageButton) view.findViewById(R.id.discardButton2),
+                (ImageButton) view.findViewById(R.id.discardButton3),
+                (ImageButton) view.findViewById(R.id.discardButton4)};
+
+        // Link discard buttons to edit boxes, to know which edit box to clear
+        for (int i = 0; i < 4; i++) {
+            mDiscardButtons[i].setOnClickListener(new OnDiscardButtonClickListener(mEditTexts[i]));
         }
 
+        // Fill in the edit text boxes with the measure's chords
         for (int i = 0; i < Math.min(4, mMeasure.countChords()); i++) {
-            if (i > 0)
-                mCheckBoxes[i].setChecked(true);
             mEditTexts[i].setText(mMeasure.getChord(i).getValue());
         }
 
@@ -98,11 +98,9 @@ public class MeasureDialogFragment extends DialogFragment {
         ArrayList<String> chords = new ArrayList<String>();
         chords.add(mEditTexts[0].getText().toString());
         for (int i = 1; i < 4; i++) {
-            if (mCheckBoxes[i].isChecked()) {
-                String chord = mEditTexts[i].getText().toString();
-                if (!TextUtils.isEmpty(chord))
-                    chords.add(chord);
-            }
+            String chord = mEditTexts[i].getText().toString();
+            if (!TextUtils.isEmpty(chord))
+                chords.add(chord);
         }
         return chords;
     }
@@ -111,24 +109,22 @@ public class MeasureDialogFragment extends DialogFragment {
      * This interface defines 2 methods to handle both possible results of the dialog: OK and CANCEL.
      */
     public interface MeasureDialogResultHandler {
-        public void onTuneDialogOk(MeasureDialogFragment dialogFragment);
+        void onTuneDialogOk(MeasureDialogFragment dialogFragment);
 
-        public void onTuneDialogCancel(MeasureDialogFragment dialogFragment);
+        void onTuneDialogCancel(MeasureDialogFragment dialogFragment);
     }
 
-    private class OnCheckedChordChangeListener implements CompoundButton.OnCheckedChangeListener {
+    private class OnDiscardButtonClickListener implements View.OnClickListener {
 
         private EditText mEditText;
 
-        public OnCheckedChordChangeListener(EditText editText) {
+        public OnDiscardButtonClickListener(EditText editText) {
             mEditText = editText;
         }
 
         @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            mEditText.setEnabled(isChecked);
-            if (!isChecked)
-                mEditText.setText("");
+        public void onClick(View v) {
+            mEditText.setText("");
         }
     }
 }

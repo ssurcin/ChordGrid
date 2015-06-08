@@ -257,21 +257,26 @@ public class TuneBook extends Observable implements Parcelable, Observer {
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     public void remove(List<? extends TunebookItem> discardedItems) {
-        int count = 0;
+        int countDiscardedTunes = 0;
+        int countDiscardedTunesets = 0;
+
         for (TunebookItem item : discardedItems) {
             if (item instanceof Tune) {
                 tunes.remove(((Tune) item).getId());
-                count++;
+                countDiscardedTunes++;
             } else if (item instanceof TuneSet) {
                 tuneSets.remove(item);
-                count++;
+                countDiscardedTunesets++;
             }
             item.deleteObserver(this);
         }
-        if (count > 0) {
+        if (countDiscardedTunes + countDiscardedTunesets > 0) {
             // Notify observers that the tune set collection has changed
             setChanged();
-            notifyObservers(ChangedProperty.TuneSets);
+            if (countDiscardedTunes > 0)
+                notifyObservers(ChangedProperty.Tunes);
+            if (countDiscardedTunesets > 0)
+                notifyObservers(ChangedProperty.TuneSets);
         }
     }
 

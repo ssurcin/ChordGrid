@@ -7,126 +7,127 @@
         android:id="@+id/textViewChord1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/chord1"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp" />
+        android:layout_alignBaseline="@+id/editTextChord1"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 
     <EditText
         android:id="@+id/editTextChord1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/textViewChord1"
-        android:layout_marginLeft="10dp"
+        android:layout_alignBottom="@+id/discardButton1"
+        android:layout_toRightOf="@+id/textViewChord1"
+        android:layout_toLeftOf="@+id/discardButton1"
+        android:layout_toStartOf="@+id/discardButton1"
         android:ems="6"
         android:inputType="textCapWords"
         android:textAppearance="@android:style/TextAppearance.Large" />
 
-    <TextView
+    <ImageButton
+        android:id="@+id/discardButton1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/chord2"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_action_discard"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
         android:id="@+id/textViewChord2"
-        android:layout_below="@id/textViewChord1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/editTextChord2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp" />
+        android:text="@string/chord2"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 
     <EditText
         android:id="@+id/editTextChord2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/textViewChord2"
-        android:layout_below="@id/editTextChord1"
-        android:layout_marginLeft="10dp"
+        android:layout_alignBottom="@+id/discardButton2"
+        android:layout_toRightOf="@+id/textViewChord2"
+        android:layout_toLeftOf="@+id/discardButton2"
+        android:layout_toStartOf="@+id/discardButton2"
         android:ems="6"
         android:inputType="textCapWords"
         android:textAppearance="@android:style/TextAppearance.Large" />
 
-    <CheckBox
-        android:id="@+id/checkBoxChord2"
+    <ImageButton
+        android:id="@+id/discardButton2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/use_2nd_chord"
-        android:layout_toRightOf="@+id/editTextChord2"
-        android:layout_toEndOf="@+id/editTextChord1"
-        android:layout_below="@id/editTextChord1"
-        android:textAppearance="@android:style/TextAppearance.Large" />
+        android:layout_alignLeft="@+id/discardButton1"
+        android:layout_alignStart="@+id/discardButton1"
+        android:layout_below="@+id/discardButton1"
+        android:src="@drawable/ic_action_discard" />
 
     <TextView
+        android:id="@+id/textViewChord3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/chord3"
-        android:id="@+id/textViewChord3"
-        android:layout_below="@id/textViewChord2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignBaseline="@+id/editTextChord3"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp" />
+        android:text="@string/chord3"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 
     <EditText
         android:id="@+id/editTextChord3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/textViewChord3"
-        android:layout_below="@id/editTextChord2"
-        android:layout_alignBaseline="@id/editTextChord3"
-        android:layout_marginLeft="10dp"
+        android:layout_alignBottom="@+id/discardButton3"
+        android:layout_toRightOf="@+id/textViewChord3"
+        android:layout_toLeftOf="@+id/discardButton3"
+        android:layout_toStartOf="@+id/discardButton3"
         android:ems="6"
         android:inputType="textCapWords"
         android:textAppearance="@android:style/TextAppearance.Large" />
 
-    <CheckBox
+    <ImageButton
+        android:id="@+id/discardButton3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/use_3rd_chord"
-        android:id="@+id/checkBoxChord3"
-        android:layout_toRightOf="@+id/editTextChord3"
-        android:layout_toEndOf="@+id/editTextChord3"
-        android:layout_below="@id/editTextChord2"
-        android:textAppearance="@android:style/TextAppearance.Large" />
+        android:layout_alignLeft="@+id/discardButton2"
+        android:layout_alignStart="@+id/discardButton2"
+        android:layout_below="@+id/discardButton2"
+        android:src="@drawable/ic_action_discard" />
 
     <TextView
+        android:id="@+id/textViewChord4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/chord4"
-        android:id="@+id/textViewChord4"
-        android:layout_below="@id/textViewChord3"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignBaseline="@+id/editTextChord4"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp" />
+        android:text="@string/chord4"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 
     <EditText
         android:id="@+id/editTextChord4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/textViewChord4"
-        android:layout_below="@id/editTextChord3"
-        android:layout_alignBaseline="@id/editTextChord4"
-        android:layout_marginLeft="10dp"
+        android:layout_alignBottom="@+id/discardButton4"
+        android:layout_toRightOf="@+id/textViewChord4"
+        android:layout_toLeftOf="@+id/discardButton4"
+        android:layout_toStartOf="@+id/discardButton4"
         android:ems="6"
         android:inputType="textCapWords"
         android:textAppearance="@android:style/TextAppearance.Large" />
 
-    <CheckBox
+    <ImageButton
+        android:id="@+id/discardButton4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/use_4th_chord"
-        android:id="@+id/checkBoxChord4"
-        android:layout_toRightOf="@+id/editTextChord4"
-        android:layout_toEndOf="@+id/editTextChord4"
-        android:layout_below="@id/editTextChord3"
-        android:textAppearance="@android:style/TextAppearance.Large" />
+        android:layout_alignLeft="@+id/discardButton3"
+        android:layout_alignStart="@+id/discardButton3"
+        android:layout_below="@+id/discardButton3"
+        android:src="@drawable/ic_action_discard" />
 
 </RelativeLayout>
