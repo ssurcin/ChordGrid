@@ -75,6 +75,8 @@ public class TuneBook extends Observable implements Parcelable, Observer {
             if (source.startsWith("X:")) {
                 try {
                     Tune tune = new Tune(tuneSources[i]);
+                    if (tune.getIndex() == 0)
+                        tune.setIndex(getMaxTuneIndex() + 1);
                     tunes.put(tune.getId(), tune);
                 } catch (Exception e) {
                     Log.w(TAG, e.getMessage());
@@ -86,7 +88,7 @@ public class TuneBook extends Observable implements Parcelable, Observer {
                 } catch (Exception e) {
                     Log.w(TAG, e.getMessage());
                 }
-            } else if (source.startsWith("RHYTHM:")) {
+            } else if (source.startsWith("RHYTHMS:")) {
                 int newline = source.indexOf("\n");
                 if (newline > 0) {
                     Rhythm.addKnownRhythms(Rhythm.parseLines(source.substring(newline + 1)));
@@ -252,6 +254,14 @@ public class TuneBook extends Observable implements Parcelable, Observer {
         return null;
     }
 
+    public int getMaxTuneIndex() {
+        int index = -1;
+        for (Tune tune : tunes.values()) {
+            index = Math.max(index, tune.getIndex());
+        }
+        return index;
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Operations
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +297,9 @@ public class TuneBook extends Observable implements Parcelable, Observer {
      */
     public void add(Tune newTune) {
         Log.d(TAG, "Adding a new tune " + newTune.getName());
+
+        if (newTune.getIndex() == 0)
+            newTune.setIndex(getMaxTuneIndex() + 1);
 
         tunes.put(newTune.getName(), newTune);
 
