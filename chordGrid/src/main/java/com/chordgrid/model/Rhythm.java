@@ -10,7 +10,6 @@ import android.util.Log;
 import com.chordgrid.R;
 import com.chordgrid.util.StaticObserver;
 import com.chordgrid.util.StorageUtil;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -296,16 +295,6 @@ public class Rhythm implements Comparable<Rhythm>, Parcelable {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    /**
-     * Serializes this instance as a JSON string.
-     */
-    public String jsonSerialize() {
-        return new Gson().toJson(this);
-    }
-
-    public static class RhythmSet extends TreeSet<Rhythm> {
     }
 
     @Override

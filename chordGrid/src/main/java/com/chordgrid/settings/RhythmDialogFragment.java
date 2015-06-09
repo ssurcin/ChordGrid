@@ -16,9 +16,9 @@ import android.widget.TextView;
 
 import com.chordgrid.R;
 import com.chordgrid.model.Rhythm;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Created by sylvain.surcin@gmail.com on 03/11/2014.
@@ -123,7 +123,7 @@ public class RhythmDialogFragment extends DialogFragment {
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(Rhythm.PREFS_NAME_CUSTOM, Context.MODE_PRIVATE);
         String serializedRhythms = sharedPreferences.getString(Rhythm.PREFS_KEY_RHYTHMS, "[]");
-        Rhythm.RhythmSet set = new Gson().fromJson(serializedRhythms, Rhythm.RhythmSet.class);
+        Set<Rhythm> set = Rhythm.parseLines(serializedRhythms);
         for (Rhythm rhythm : set) {
             mKnownRhythmNames.add(rhythm.getName().toLowerCase());
         }

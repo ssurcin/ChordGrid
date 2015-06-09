@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.chordgrid"
     android:installLocation="auto"
-    android:versionCode="2"
     android:versionName="1.0">
 
     <uses-sdk
@@ -40,6 +39,16 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
                 <action android:name="android.intent.action.VIEW" />
@@ -51,6 +60,7 @@
                 <data android:pathPattern=".*\\.cgx" />
                 <data android:pathPattern=".*\\.txt" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="com.google.android.apps.drive.DRIVE_OPEN" />
 

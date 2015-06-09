@@ -10,10 +10,13 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +41,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -63,7 +68,9 @@ public class MainActivity extends FragmentActivity implements TabListener {
      */
     private String fileId;
 
-    private Uri localFileUri;
+    //private Uri localFileUri;
+
+    private String mLocalFilePath;
 
     /**
      * A delegate object for Drive API.
@@ -111,6 +118,10 @@ public class MainActivity extends FragmentActivity implements TabListener {
         // Read the preferences to initialize the Known Rhythms cache
         Rhythm.initializeKnownRhythms(getApplicationContext());
 
+        String contentPath = getIntentContentPath();
+        if (!TextUtils.isEmpty(contentPath))
+            openFromFileView(contentPath);
+        /*
         // Get the action that triggered the intent filter for this Activity
         final Intent intent = getIntent();
         final String action = intent.getAction();
@@ -122,7 +133,9 @@ public class MainActivity extends FragmentActivity implements TabListener {
             onOpenFromGoogleDrive(intent);
         } else if (ACTION_VIEW.equals(action)) {
             onOpenFromFileView(intent);
-        } else {
+        }
+        */
+        else {
             try {
                 setTunebook(loadLocalTunebook());
                 setUseMyTunebook();
@@ -176,6 +189,16 @@ public class MainActivity extends FragmentActivity implements TabListener {
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+
+        String contentPath = getIntentContentPath();
+        if (contentPath != null) {
+            openFromFileView(contentPath);
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
     }
@@ -212,6 +235,92 @@ public class MainActivity extends FragmentActivity implements TabListener {
         saveTuneBook();
 
         super.onPause();
+    }
+
+    private String getIntentContentPath() {
+        Intent intent = getIntent();
+        InputStream is = null;
+        FileOutputStream os = null;
+        String fullPath = null;
+
+        try {
+            String action = intent.getAction();
+            if (!Intent.ACTION_VIEW.equals(action))
+                return null;
+
+            Uri uri = intent.getData();
+            String scheme = uri.getScheme();
+            String name = null;
+
+            if (scheme.equals("file")) {
+                List<String> pathSegments = uri.getPathSegments();
+                if (pathSegments.size() > 0)
+                    name = pathSegments.get(pathSegments.size() - 1);
+            } else if (scheme.equals("content")) {
+                Cursor cursor = getContentResolver().query(
+                        uri,
+                        new String[]{MediaStore.MediaColumns.DISPLAY_NAME},
+                        null,
+                        null,
+                        null);
+                cursor.moveToFirst();
+
+                int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                if (nameIndex >= 0)
+                    name = cursor.getString(nameIndex);
+            } else
+                return null;
+
+            if (name == null)
+                return null;
+
+            int n = name.lastIndexOf(".");
+            String fileName, fileExt;
+
+            if (n == -1)
+                return null;
+            else {
+                fileName = name.substring(0, n);
+                fileExt = name.substring(n);
+            }
+
+            File outputDir = getCacheDir();
+            File outputFile = File.createTempFile("tunebook", ".txt", outputDir);
+            fullPath = outputFile.getAbsolutePath();
+
+            is = getContentResolver().openInputStream(uri);
+            os = new FileOutputStream(fullPath);
+
+            byte[] buffer = new byte[4096];
+            int count;
+            while ((count = is.read(buffer)) > 0)
+                os.write(buffer, 0, count);
+
+            os.close();
+            is.close();
+        } catch (Exception e) {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e1) {
+                    Log.e(LogUtils.getTag(), "Cannot close input stream", e1);
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (Exception e1) {
+                    Log.e(LogUtils.getTag(), "Cannot close output stream", e1);
+                }
+            }
+            if (fullPath != null) {
+                File f = new File(fullPath);
+                f.delete();
+                fullPath = null;
+            }
+        }
+
+        return fullPath;
     }
 
     /**
@@ -383,25 +492,16 @@ public class MainActivity extends FragmentActivity implements TabListener {
 		 */
     }
 
-    /** Open a file from local file VIEW action. */
+    private void openFromFileView(final String filePath) {
+        Log.d(TAG, "Opening file " + filePath + " with VIEW action");
 
-    /**
-     * Open a file from local file VIEW action. <br/>
-     *
-     * @param intent The intent with the data to open.
-     */
-    private void onOpenFromFileView(final Intent intent) {
-        Log.d(TAG, "Opening a file with VIEW action");
-
-        setUseOtherTunebook(intent.getData());
-        Log.d(TAG, "URI = " + localFileUri.toString());
+        setUseOtherTunebook(filePath);
 
         try {
-            String path = localFileUri.getPath();
-            String fileContents = StorageUtil.getStringFromFile(path);
-            int lastDot = path.lastIndexOf('.');
+            String fileContents = StorageUtil.getStringFromFile(filePath);
+            int lastDot = filePath.lastIndexOf('.');
             if (lastDot >= 0) {
-                String extension = path.substring(lastDot + 1);
+                String extension = filePath.substring(lastDot + 1);
                 if ("txt".equalsIgnoreCase(extension))
                     tunebook = new TuneBook(fileContents);
                 else {
@@ -411,20 +511,18 @@ public class MainActivity extends FragmentActivity implements TabListener {
                 }
             } else {
                 showMessage(String.format("Unexpected file nature %s!",
-                        localFileUri));
+                        filePath));
                 finish();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Cannot read file " + localFileUri);
+            Log.e(TAG, "Cannot read file " + filePath, e);
             showMessage(getString(R.string.error_drive_read));
         }
     }
 
-    /**
-     * ***********************************************************************
-     * Properties
-     * ************************************************************************
-     */
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Properties
+    //////////////////////////////////////////////////////////////////////////////////////////////
 
     private void setTunebook(TuneBook tunebook) {
         this.tunebook = tunebook;
@@ -435,30 +533,28 @@ public class MainActivity extends FragmentActivity implements TabListener {
      * another file).
      */
     public boolean usesMyTunebook() {
-        return localFileUri == null;
+        return TextUtils.isEmpty(mLocalFilePath);
     }
 
     private void setUseMyTunebook() {
-        localFileUri = null;
+        mLocalFilePath = null;
         invalidateOptionsMenu();
     }
 
-    private void setUseOtherTunebook(Uri uri) {
-        localFileUri = uri;
+    private void setUseOtherTunebook(String filePath) {
+        mLocalFilePath = filePath;
         invalidateOptionsMenu();
     }
 
     private String getCurrentTunebookFilename() {
-        if (localFileUri != null)
-            return localFileUri.getPath();
+        if (!TextUtils.isEmpty(mLocalFilePath))
+            return mLocalFilePath;
         return tunebookFileName;
     }
 
-    /**
-     * ***********************************************************************
-     * TabListener implementation
-     * ************************************************************************
-     */
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // abListener implementation
+    //////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction ft) {
