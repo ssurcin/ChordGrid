@@ -178,7 +178,7 @@ public class Tune extends TunebookItem implements Parcelable {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     public String getNextPartLabel() {
-        String label = new StringBuilder().append(mNextPartLabel).toString();
+        String label = String.valueOf(mNextPartLabel);
         mNextPartLabel++;
         return label;
     }
